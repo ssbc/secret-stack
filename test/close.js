@@ -8,6 +8,7 @@ var Illuminati = require('../')
 var crypto = require('crypto')
 var tape = require('tape')
 var u = require('../util')
+var seeds = require('./seeds')
 
 var Pushable = require('pull-pushable')
 
@@ -35,7 +36,7 @@ var create = Illuminati({
   }
 })
 function createPeer(name) {
-  var alice = create({keys: Illuminati.generate(hash(name))})
+  var alice = create({seed: seeds[name]})
   return alice.on('flood:message', function (msg) {
     console.log(name, 'received', msg)
   })
