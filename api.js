@@ -9,7 +9,7 @@ function isFunction (f) {
 function merge (a, b, mapper) {
 
   for(var k in b) {
-    if(b[k] && 'object' === typeof b[k])
+    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]))
       a[k] = merge(a[k], b[k], mapper)
     else
       a[k] = mapper(b[k], k)
