@@ -8,14 +8,17 @@
     "url": "git://github.com/dominictarr/illuminati.git"
   },
   "dependencies": {
+    "hoox": "0.0.1",
     "map-merge": "^1.1.0",
-    "pull-inactivity": "~2.1.1",
+    "muxrpc": "~6.1.0",
     "non-private-ip": "~1.2.1",
-    "muxrpc": "~4.0.2",
-    "pull-stream": "~2.27.0"
+    "pull-inactivity": "~2.1.1",
+    "pull-stream": "~2.27.0",
+    "secret-handshake": "^0.2.0"
   },
   "devDependencies": {
-    "tape": "^4.0.0"
+    "tape": "^4.0.0",
+    "pull-pushable": "~1.1.4"
   },
   "scripts": {
     "prepublish": "npm ls &&  npm test",
