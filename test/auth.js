@@ -3,12 +3,13 @@ var crypto = require('crypto')
 var tape = require('tape')
 var u = require('../util')
 
+var seeds = require('./seeds')
+
 //deterministic keys make testing easy.
 function hash (s) {
   return crypto.createHash('sha256').update(s).digest()
 }
 
-var aliceKeys = Illuminati.generate(hash('alice'))
 var appkey = hash('test_key')
 
 var create = Illuminati({
@@ -37,13 +38,12 @@ create.use({
 })
 .use({
   init: function (api) {
-    console.log(api)
     api.auth.hook(function (fn, args) {
       var cb = args.pop()
       var id = args.shift()
       fn(id, function (err, res) {
         if(err) return cb(err)
-        if(id === u.toId(aliceKeys.publicKey))
+        if(id === u.toId(alice.publicKey))
           cb(null, {allow: ['hello', 'aliceOnly']})
         else cb()
       })
@@ -52,15 +52,15 @@ create.use({
 })
 
 var alice = create({
-  keys: aliceKeys,
+  seed: seeds.alice
 })
 
 var bob = create({
-  keys: Illuminati.generate(hash('bob')),
+  seed: seeds.bob
 })
 
 var carol = create({
-  keys: Illuminati.generate(hash('carol')),
+  seed: seeds.carol
 })
 
 tape('alice *can* use alice_only api', function (t) {

@@ -1,6 +1,7 @@
 var Illuminati = require('../')
 var crypto = require('crypto')
 var tape = require('tape')
+var seeds = require('./seeds')
 
 //deterministic keys make testing easy.
 function hash (s) {
@@ -27,20 +28,13 @@ var create = Illuminati({
   }
 })
 
-var alice = create({
-  keys: Illuminati.generate(hash('alice')),
-})
-
-var bob = create({
-  keys: Illuminati.generate(hash('bob')),
-})
+var alice = create({ seed: seeds.alice })
+var bob = create({ seed: seeds.bob })
 
 tape('alice connects to bob', function (t) {
 
   alice.connect(bob.address(), function (err, rpc) {
     if(err) throw err
-
-    console.log(rpc)
 
     rpc.hello('Alice', function (err, data) {
       if(err) throw err
