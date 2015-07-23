@@ -21,7 +21,8 @@ function merge (a, b, mapper) {
 module.exports = function (plugins) {
 
   function create (opts) {
-    var api = {}
+    //change event emitter to something with more rigorous security?
+    var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
       var _api = plug.init(api, opts)
       if(plug.name) {
