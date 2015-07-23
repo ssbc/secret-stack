@@ -1,6 +1,6 @@
 {
   "name": "illuminati",
-  "description": "",
+  "description": "create secure peer to peer networks using secret-handshakes",
   "version": "0.0.0",
   "homepage": "https://github.com/dominictarr/illuminati",
   "repository": {
