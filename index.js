@@ -22,7 +22,10 @@ module.exports = function (opts) {
 
   opts.permissions = opts.permissions || {}
 
-  var create = Api()
+  var create = Api(opts.permissions ? [{
+    permissions: opts.permissions,
+    init: function () {}
+  }]: null)
 
   return create.use({
     manifest: {
@@ -33,6 +36,7 @@ module.exports = function (opts) {
     init: function (api, opts, permissions, manifest) {
       var snet = createNode({
         keys: opts.keys,
+        seed: opts.seed,
         appKey: appKey,
         authenticate: function (pub, cb) {
           var id = u.toId(pub)
@@ -43,37 +47,42 @@ module.exports = function (opts) {
         }
       })
 
-    //use configured port, or a random user port.
-    var port = opts.port || 1024+(~~(Math.random()*(65536-1024)))
+      //use configured port, or a random user port.
+      var port = opts.port || 1024+(~~(Math.random()*(65536-1024)))
 
-    var peers = api.peers = {}
+      var peers = api.peers = {}
 
-    var server = snet.createServer(setupRPC).listen(port)
+      var server = snet.createServer(setupRPC).listen(port)
 
-    function setupRPC (stream) {
-      var rpc = Muxrpc(create.manifest, create.manifest)(api, stream.auth)
-      var timeout = opts.timeout || 5e3
-      pull(stream, Inactive(rpc.createStream(), timeout), stream)
+      function setupRPC (stream) {
+        var rpc = Muxrpc(create.manifest, create.manifest)(api, stream.auth)
+        var timeout = opts.timeout || 5e3
+        var rpcStream = rpc.createStream()
+        if(opts.timeout) rpcStream = Inactive(rpcStream, opts.timeout)
 
-      var id = rpc.id = u.toId(stream.remote)
+        pull(stream, rpcStream, stream)
 
-      //keep track of current connections.
-      if(!peers[id]) peers[id] = []
-      peers[id].push(rpc)
-      rpc.once('closed', function () {
-        peers[id].splice(peers[id].indexOf(rpc), 1)
-      })
+        var id = rpc.id = u.toId(stream.remote)
 
-      return rpc
-    }
+        //keep track of current connections.
+        if(!peers[id]) peers[id] = []
+        peers[id].push(rpc)
+        rpc.once('closed', function () {
+          peers[id].splice(peers[id].indexOf(rpc), 1)
+        })
 
+        api.emit('rpc:connect', rpc)
+
+        return rpc
+      }
 
       return {
         //can be called remotely.
+        publicKey: snet.publicKey,
         auth: function (pub, cb) { cb() },
         address: function () {
                 var host = nonPrivate() || nonPrivate.private() || '127.0.0.1'
-          return [host, port, u.toId(opts.keys.publicKey)].join(':')
+          return [host, port, u.toId(snet.publicKey)].join(':')
         },
         manifest: function () {
           return create.manifest
@@ -91,31 +100,21 @@ module.exports = function (opts) {
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
 
+          server.close(function (err) {
+            cb && cb(err)
+          })
+
           if(err) {
-            var n = 0
-            each(peers, function (connections) {
+            each(peers, function (connections, id) {
               each(connections, function (rpc) {
-                n++
-                rpc.close(err, next)
+                rpc.close(err)
               })
             })
-            if(n === 0) return server.close(cb)
-            function next () {
-              if(--n) return
-              server.close(cb)
-            }
           }
-          server.close(cb)
         }
       }
     }
   })
 
-}
-
-module.exports.generate = function (seed) {
-  var sodium = require('sodium/build/Release/sodium')
-  return seed ? sodium.crypto_sign_seed_keypair(seed)
-              : sodium.create_sign_keypair()
 }
 
