@@ -31,7 +31,6 @@ module.exports = function (plugins) {
       api = merge(api, _api, function (v) {
         return 'function' === typeof v ? Hookable(v) : v
       })
-
     })
 
     return api
@@ -42,6 +41,9 @@ module.exports = function (plugins) {
   create.permissions = {}
 
   create.use = function (plug) {
+    if(isFunction(plug))
+      return create.plugins.push({init: plug})
+
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
