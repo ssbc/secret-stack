@@ -36,19 +36,17 @@ create.use({
     }
   }
 })
-.use({
-  init: function (api) {
-    api.auth.hook(function (fn, args) {
-      var cb = args.pop()
-      var id = args.shift()
-      fn(id, function (err, res) {
-        if(err) return cb(err)
-        if(id === u.toId(alice.publicKey))
-          cb(null, {allow: ['hello', 'aliceOnly']})
-        else cb()
-      })
+.use(function (api) {
+  api.auth.hook(function (fn, args) {
+    var cb = args.pop()
+    var id = args.shift()
+    fn(id, function (err, res) {
+      if(err) return cb(err)
+      if(id === u.toId(alice.publicKey))
+        cb(null, {allow: ['hello', 'aliceOnly']})
+      else cb()
     })
-  }
+  })
 })
 
 var alice = create({
