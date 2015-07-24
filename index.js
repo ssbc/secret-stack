@@ -15,6 +15,20 @@ function each(obj, iter) {
   for(var k in obj) iter(obj[k], k, obj)
 }
 
+
+function toBuffer(base64) {
+  return new Buffer(base64.substring(0, base64.indexOf('.')), 'base64')
+}
+
+function toSodiumKeys (keys) {
+  if(!(isString(keys.public) && isString(keys.private)))
+    return keys
+  return {
+    publicKey: toBuffer(keys.public),
+    secretKey: toBuffer(keys.private)
+  }
+}
+
 //opts must have appKey
 module.exports = function (opts) {
 
@@ -35,7 +49,7 @@ module.exports = function (opts) {
     },
     init: function (api, opts, permissions, manifest) {
       var snet = createNode({
-        keys: opts.keys,
+        keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
         appKey: appKey,
         authenticate: function (pub, cb) {
@@ -81,7 +95,10 @@ module.exports = function (opts) {
         publicKey: snet.publicKey,
         auth: function (pub, cb) { cb() },
         address: function () {
-                var host = nonPrivate() || nonPrivate.private() || '127.0.0.1'
+          return this.getAddress()
+        },
+        getAddress: function () {
+          var host = opts.host || nonPrivate() || nonPrivate.private() || '127.0.0.1'
           return [host, port, u.toId(snet.publicKey)].join(':')
         },
         manifest: function () {
