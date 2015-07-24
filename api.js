@@ -42,7 +42,7 @@ module.exports = function (plugins) {
 
   create.use = function (plug) {
     if(isFunction(plug))
-      return create.plugins.push({init: plug})
+      return create.plugins.push({init: plug}), create
 
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
