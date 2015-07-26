@@ -41,6 +41,30 @@ module.exports = function (opts) {
     init: function () {}
   }]: null)
 
+  create.createClient = function (opts) {
+    if(opts.keys) opts.keys = toSodiumKeys(opts.keys)
+    if(opts.seed) opts.seed = new Buffer(opts.seed, 'base64')
+
+    opts.appKey = appKey
+
+    var snet = createNode(opts)
+    return function (address, cb) {
+      if(isString(address)) address = u.parseAddress(address)
+      if(isString(address.key))
+        address.key = new Buffer(
+          address.key
+            .substring(0, address.key.indexOf('.')),
+          'base64'
+        )
+
+      snet.connect(address, function (err, stream) {
+        var rpc = Muxrpc(create.manifest, {})({})
+        pull(stream, rpc.createStream(), stream)
+        cb(null, rpc)
+      })
+    }
+  }
+
   return create.use({
     manifest: {
       auth: 'async',
@@ -68,8 +92,8 @@ module.exports = function (opts) {
 
       var server = snet.createServer(setupRPC).listen(port)
 
-      function setupRPC (stream) {
-        var rpc = Muxrpc(create.manifest, create.manifest)(api, stream.auth)
+      function setupRPC (stream, manf) {
+        var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var timeout = opts.timeout || 5e3
         var rpcStream = rpc.createStream()
         if(opts.timeout) rpcStream = Inactive(rpcStream, opts.timeout)
@@ -104,10 +128,18 @@ module.exports = function (opts) {
         manifest: function () {
           return create.manifest
         },
-
+        getManifest: function () {
+          return this.manifest()
+        },
         //cannot be called remote.
         connect: function (address, cb) {
           if(isString(address)) address = u.parseAddress(address)
+          if(isString(address.key))
+            address.key = new Buffer(
+              address.key
+                .substring(0, address.key.indexOf('.')),
+              'base64'
+            )
 
           snet.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream))
@@ -116,8 +148,9 @@ module.exports = function (opts) {
 
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
-
+          api.closed = true
           server.close(function (err) {
+            api.emit('close', err)
             cb && cb(err)
           })
 
@@ -132,6 +165,5 @@ module.exports = function (opts) {
       }
     }
   })
-
 }
 
