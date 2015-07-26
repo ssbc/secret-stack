@@ -83,6 +83,9 @@ var alice = createPeer('alice')
 var bob   = createPeer('bob')
 var carol = createPeer('carol')
 
+//for simplicity, we are connecting these manually
+//but for extra points, use a gossip protocol, etc!
+
 carol.connect(alice.address(), function (err) {
   if(err) throw err
   alice.connect(bob.address(), function (err) {
