@@ -10,7 +10,7 @@ function merge (a, b, mapper) {
 
   for(var k in b) {
     if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]))
-      a[k] = merge(a[k], b[k], mapper)
+      merge(a[k] = {}, b[k], mapper)
     else
       a[k] = mapper(b[k], k)
   }
@@ -24,7 +24,7 @@ module.exports = function (plugins) {
     //change event emitter to something with more rigorous security?
     var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
-      var _api = plug.init(api, opts)
+      var _api = plug.init.call({createClient: create.createClient}, api, opts)
       if(plug.name) {
         var o = {}; o[plug.name] = _api; _api = o
       }
