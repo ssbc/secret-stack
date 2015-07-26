@@ -1,5 +1,5 @@
 var isArray = Array.isArray
-var merge        = require('map-merge')
+var merge   = require('map-merge')
 
 function isObject (o) {
   return o && 'object' === typeof o
