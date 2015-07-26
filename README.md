@@ -51,7 +51,6 @@ be a high entropy (i.e. random) 32 byte value.
 It is fixed for your app. Actors who do not know this value
 will not be able to connect to instances of your app.
 
-
 ### create.use(plugin)
 
 set up the factory by adding plugins. see the example above.
@@ -68,6 +67,15 @@ so that plugins may intercept that function.
 So far, the ways i have used this is to manage permissions,
 for example, to extend the auth method (see below) or to filter
 the output of a stream.
+
+### connect = create.createClient(opts)
+
+sometimes you need to create a connection using a different key pair,
+and/or to connect without providing access for the remote to your local api.
+`opts` must have a sodium ed25519 key pair, or a `seed` (32 byte random)
+value, from which a private key will be generated.
+
+`connect` then takes the same arguments as `node.connect`
 
 ### node = create (opts)
 
