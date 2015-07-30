@@ -42,7 +42,7 @@ create.use({
     var id = args.shift()
     fn(id, function (err, res) {
       if(err) return cb(err)
-      if(id === u.toId(alice.publicKey))
+      if(id === '@'+u.toId(alice.publicKey))
         cb(null, {allow: ['hello', 'aliceOnly']})
       else cb()
     })
