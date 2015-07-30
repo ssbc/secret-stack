@@ -15,7 +15,6 @@ function each(obj, iter) {
   for(var k in obj) iter(obj[k], k, obj)
 }
 
-
 function toBuffer(base64) {
   return new Buffer(base64.substring(0, base64.indexOf('.')), 'base64')
 }
@@ -53,7 +52,7 @@ module.exports = function (opts) {
       if(isString(address.key))
         address.key = new Buffer(
           address.key
-            .substring(0, address.key.indexOf('.')),
+            .substring(1, address.key.indexOf('.')),
           'base64'
         )
 
@@ -77,7 +76,7 @@ module.exports = function (opts) {
         seed: opts.seed,
         appKey: appKey,
         authenticate: function (pub, cb) {
-          var id = u.toId(pub)
+          var id = '@'+u.toId(pub)
           api.auth(id, function (err, auth) {
             if(err) cb(err)
             else    cb(null, auth || create.permissions.anonymous)
@@ -100,7 +99,7 @@ module.exports = function (opts) {
 
         pull(stream, rpcStream, stream)
 
-        var id = rpc.id = u.toId(stream.remote)
+        var id = rpc.id = '@'+u.toId(stream.remote)
 
         //keep track of current connections.
         if(!peers[id]) peers[id] = []
@@ -123,7 +122,7 @@ module.exports = function (opts) {
         },
         getAddress: function () {
           var host = opts.host || nonPrivate() || nonPrivate.private() || '127.0.0.1'
-          return [host, port, u.toId(snet.publicKey)].join(':')
+          return [host, port, '@'+u.toId(snet.publicKey)].join(':')
         },
         manifest: function () {
           return create.manifest
@@ -137,7 +136,7 @@ module.exports = function (opts) {
           if(isString(address.key))
             address.key = new Buffer(
               address.key
-                .substring(0, address.key.indexOf('.')),
+                .substring(1, address.key.indexOf('.')),
               'base64'
             )
 
