@@ -90,7 +90,6 @@ module.exports = function (opts) {
 
       var peers = api.peers = {}
 
-      console.log('LISTEN',{port: port, host: host})
       var server = snet.createServer(setupRPC).listen(port)
 
       function setupRPC (stream, manf) {
@@ -141,7 +140,6 @@ module.exports = function (opts) {
               'base64'
             )
 
-          console.log('CONNECT', address)
           snet.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream))
           })
