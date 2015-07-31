@@ -86,9 +86,11 @@ module.exports = function (opts) {
 
       //use configured port, or a random user port.
       var port = opts.port || 1024+(~~(Math.random()*(65536-1024)))
+      var host = opts.host || nonPrivate.v4 || nonPrivate.private.v4 || '127.0.0.1'
 
       var peers = api.peers = {}
 
+      console.log('LISTEN',{port: port, host: host})
       var server = snet.createServer(setupRPC).listen(port)
 
       function setupRPC (stream, manf) {
@@ -121,7 +123,6 @@ module.exports = function (opts) {
           return this.getAddress()
         },
         getAddress: function () {
-          var host = opts.host || nonPrivate() || nonPrivate.private() || '127.0.0.1'
           return [host, port, '@'+u.toId(snet.publicKey)].join(':')
         },
         manifest: function () {
@@ -140,6 +141,7 @@ module.exports = function (opts) {
               'base64'
             )
 
+          console.log('CONNECT', address)
           snet.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream))
           })
