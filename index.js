@@ -28,6 +28,20 @@ function toSodiumKeys (keys) {
   }
 }
 
+function coearseAddress (address) {
+  if(isString(address)) address = u.parseAddress(address)
+  if(isString(address.key))
+    return {
+      host: address.host, port: address.port,
+      key: new Buffer(
+        address.key
+          .substring(1, address.key.indexOf('.')),
+        'base64'
+      )
+    }
+  return address
+}
+
 //opts must have appKey
 module.exports = function (opts) {
 
@@ -48,13 +62,7 @@ module.exports = function (opts) {
 
     var snet = createNode(opts)
     return function (address, cb) {
-      if(isString(address)) address = u.parseAddress(address)
-      if(isString(address.key))
-        address.key = new Buffer(
-          address.key
-            .substring(1, address.key.indexOf('.')),
-          'base64'
-        )
+      address = coearseAddress(address)
 
       snet.connect(address, function (err, stream) {
         var rpc = Muxrpc(create.manifest, {})({})
@@ -132,13 +140,7 @@ module.exports = function (opts) {
         },
         //cannot be called remote.
         connect: function (address, cb) {
-          if(isString(address)) address = u.parseAddress(address)
-          if(isString(address.key))
-            address.key = new Buffer(
-              address.key
-                .substring(1, address.key.indexOf('.')),
-              'base64'
-            )
+          address = coearseAddress(address)
 
           snet.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream))
