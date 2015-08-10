@@ -65,6 +65,7 @@ module.exports = function (opts) {
       address = coearseAddress(address)
 
       snet.connect(address, function (err, stream) {
+        if(err) return cb(err)
         var rpc = Muxrpc(create.manifest, {})({})
         pull(stream, rpc.createStream(), stream)
         cb(null, rpc)
