@@ -66,7 +66,7 @@ module.exports = function (opts) {
 
       snet.connect(address, function (err, stream) {
         if(err) return cb(err)
-        var rpc = Muxrpc(create.manifest, {})({})
+        var rpc = Muxrpc(opts.manifest || create.manifest, {})({})
         pull(stream, rpc.createStream(), stream)
         cb(null, rpc)
       })
