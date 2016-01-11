@@ -2,10 +2,10 @@
   "name": "secret-stack",
   "description": "create secure peer to peer networks using secret-handshakes",
   "version": "2.1.0",
-  "homepage": "https://github.com/dominictarr/secret-stack",
+  "homepage": "https://github.com/ssbc/secret-stack",
   "repository": {
     "type": "git",
-    "url": "git://github.com/dominictarr/secret-stack.git"
+    "url": "git://github.com/ssbc/secret-stack.git"
   },
   "dependencies": {
     "hoox": "0.0.1",
