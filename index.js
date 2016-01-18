@@ -96,15 +96,11 @@ module.exports = function (opts) {
       //use configured port, or a random user port.
       var port = opts.port || 1024+(~~(Math.random()*(65536-1024)))
       var host = opts.host || nonPrivate.v4 || nonPrivate.private.v4 || '127.0.0.1'
-      var listenHost = opts.host
 
       var peers = api.peers = {}
 
       var server = snet.createServer(setupRPC)
-      if (listenHost)
-        server.listen(port, listenHost)
-      else
-        server.listen(port)
+      server.listen(port, opts.host)
 
       function setupRPC (stream, manf) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
@@ -173,4 +169,7 @@ module.exports = function (opts) {
     }
   })
 }
+
+
+
 
