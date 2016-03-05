@@ -11,7 +11,7 @@ function hash (s) {
 }
 
 var appkey0 = hash('test_key0')
-var appkey1 = hash('test_key1')
+var appkey1 = hash('test_key1').toString('base64')
 var appkey2 = hash('test_key2')
 
 //set a default appkey, this will not actually be used
@@ -117,6 +117,7 @@ tape('cleanup', function (t) {
   carol.close(true)
   t.end()
 })
+
 
 
 
