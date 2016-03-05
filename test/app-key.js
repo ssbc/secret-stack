@@ -10,10 +10,13 @@ function hash (s) {
   return crypto.createHash('sha256').update(s).digest()
 }
 
+var appkey0 = hash('test_key0')
 var appkey1 = hash('test_key1')
 var appkey2 = hash('test_key2')
 
-var create = Illuminati({})
+//set a default appkey, this will not actually be used
+//because everything downstream sets their appkey via config
+var create = Illuminati({appKey: appkey0})
 
 create.use({
   manifest: {
