@@ -58,7 +58,7 @@ module.exports = function (opts) {
     if(opts.keys) opts.keys = toSodiumKeys(opts.keys)
     if(opts.seed) opts.seed = new Buffer(opts.seed, 'base64')
 
-    opts.appKey = appKey
+    opts.appKey = opts.appKey || appKey
 
     var snet = createNode(opts)
     return function (address, cb) {
@@ -83,7 +83,7 @@ module.exports = function (opts) {
       var snet = createNode({
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
-        appKey: appKey,
+        appKey: opts.appKey || appKey,
         authenticate: function (pub, cb) {
           var id = '@'+u.toId(pub)
           api.auth(id, function (err, auth) {
@@ -143,7 +143,7 @@ module.exports = function (opts) {
         //cannot be called remote.
         connect: function (address, cb) {
           address = coearseAddress(address)
-
+          address.appKey = opts.appKey || appKey
           snet.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream))
           })
