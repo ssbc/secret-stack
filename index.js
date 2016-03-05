@@ -16,7 +16,9 @@ function each(obj, iter) {
 }
 
 function toBuffer(base64) {
-  return new Buffer(base64.substring(0, base64.indexOf('.')), 'base64')
+  if(Buffer.isBuffer(base64)) return base64
+  var i = base64.indexOf('.')
+  return new Buffer(~i ? base64.substring(0, i) : base64, 'base64')
 }
 
 function toSodiumKeys (keys) {
@@ -56,9 +58,8 @@ module.exports = function (opts) {
 
   create.createClient = function (opts) {
     if(opts.keys) opts.keys = toSodiumKeys(opts.keys)
-    if(opts.seed) opts.seed = new Buffer(opts.seed, 'base64')
-
-    opts.appKey = opts.appKey || appKey
+    if(opts.seed) opts.seed = toBuffer(opts.seed)
+    opts.appKey = toBuffer(opts.appKey || appKey)
 
     var snet = createNode(opts)
     return function (address, cb) {
@@ -83,7 +84,7 @@ module.exports = function (opts) {
       var snet = createNode({
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
-        appKey: opts.appKey || appKey,
+        appKey: toBuffer(opts.appKey || appKey),
         authenticate: function (pub, cb) {
           var id = '@'+u.toId(pub)
           api.auth(id, function (err, auth) {
@@ -169,6 +170,7 @@ module.exports = function (opts) {
     }
   })
 }
+
 
 
 
