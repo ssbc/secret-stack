@@ -70,13 +70,10 @@ exports.hookOptionalCB = function (syncFn) {
     // if a function is given as the last argument, treat it as a callback
     var cb = args[args.length - 1]
     if (typeof cb == 'function') {
-      try {
-        var res = fn.apply(this, args)
-        cb(null, res)
-      }
-      catch (e) {
-        cb(e)
-      }
+      var res
+      try { res = fn.apply(this, args) }
+      catch (e) { return cb(e) }
+      cb(null, res)
     } else {
       // no cb provided, regular usage
       return fn.apply(this, args)
