@@ -71,6 +71,7 @@ exports.hookOptionalCB = function (syncFn) {
     var cb = args[args.length - 1]
     if (typeof cb == 'function') {
       var res
+      args.pop() // remove cb from the arguments
       try { res = fn.apply(this, args) }
       catch (e) { return cb(e) }
       cb(null, res)
