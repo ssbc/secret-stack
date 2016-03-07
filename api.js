@@ -28,8 +28,14 @@ module.exports = function (plugins) {
       if(plug.name) {
         var o = {}; o[plug.name] = _api; _api = o
       }
-      api = merge(api, _api, function (v) {
-        return 'function' === typeof v ? Hookable(v) : v
+      api = merge(api, _api, function (v, k) {
+        if ('function' === typeof v) {
+          v = Hookable(v)
+          if (plug.manifest && plug.manifest[k] === 'sync') {
+            u.hookOptionalCB(v)
+          }
+        }
+        return v
       })
     })
 

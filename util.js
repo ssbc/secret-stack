@@ -62,3 +62,22 @@ exports.merge = {
     return merge(manf, _manf)
   }
 }
+
+exports.hookOptionalCB = function (syncFn) {
+  // syncFn is a function that's expected to return its result or throw an error
+  // we're going to hook it so you can optionally pass a callback
+  syncFn.hook(function(fn, args) {
+    // if a function is given as the last argument, treat it as a callback
+    var cb = args[args.length - 1]
+    if (typeof cb == 'function') {
+      var res
+      args.pop() // remove cb from the arguments
+      try { res = fn.apply(this, args) }
+      catch (e) { return cb(e) }
+      cb(null, res)
+    } else {
+      // no cb provided, regular usage
+      return fn.apply(this, args)
+    }
+  })
+}
