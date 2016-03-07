@@ -48,7 +48,7 @@ function coearseAddress (address) {
 module.exports = function (opts) {
 
   var appKey = opts.appKey
-
+  var defaultTimeout = opts.defaultTimeout || 5e3 // 5 seconds.
   opts.permissions = opts.permissions || {}
 
   var create = Api(opts.permissions ? [{
@@ -105,9 +105,9 @@ module.exports = function (opts) {
 
       function setupRPC (stream, manf) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
-        var timeout = opts.timeout || 5e3
+        var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
-        if(opts.timeout) rpcStream = Inactive(rpcStream, opts.timeout)
+        if(timeout > 0) rpcStream = Inactive(rpcStream, opts.timeout)
 
         pull(stream, rpcStream, stream)
 
@@ -170,6 +170,7 @@ module.exports = function (opts) {
     }
   })
 }
+
 
 
 
