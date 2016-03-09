@@ -103,7 +103,7 @@ module.exports = function (opts) {
       var server = snet.createServer(setupRPC)
       server.listen(port, opts.host)
 
-      function setupRPC (stream, manf) {
+      function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
@@ -120,7 +120,7 @@ module.exports = function (opts) {
           peers[id].splice(peers[id].indexOf(rpc), 1)
         })
 
-        api.emit('rpc:connect', rpc)
+        api.emit('rpc:connect', rpc, !!isClient)
 
         return rpc
       }
@@ -146,7 +146,7 @@ module.exports = function (opts) {
           address = coearseAddress(address)
           address.appKey = opts.appKey || appKey
           snet.connect(address, function (err, stream) {
-            return err ? cb(err) : cb(null, setupRPC(stream))
+            return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
 
@@ -170,6 +170,7 @@ module.exports = function (opts) {
     }
   })
 }
+
 
 
 
