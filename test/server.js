@@ -39,7 +39,7 @@ tape('alice connects to bob', function (t) {
     rpc.hello('Alice', function (err, data) {
       if(err) throw err
       t.equal(data, 'Hello, Alice.')
-      alice.close(true); bob.close(true)
+      //alice.close(true); bob.close(true)
       console.log(data)
       t.end()
     })
@@ -48,7 +48,32 @@ tape('alice connects to bob', function (t) {
 
 })
 
+tape('alice is client, bob is server', function (t) {
+
+  t.plan(2)
+
+  alice.on('rpc:connect', function (rpc, isClient) {
+    t.ok(isClient)
+  })
+  bob.on('rpc:connect', function (rpc, isClient) {
+    t.notOk(isClient)
+  })
+
+  alice.connect(bob.address(), function () {})
+
+})
+
+
 tape('cleanup', function (t) {
   alice.close(true); bob.close(true)
   t.end()
 })
+
+
+
+
+
+
+
+
+
