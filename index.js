@@ -48,7 +48,17 @@ function coearseAddress (address) {
 module.exports = function (opts) {
 
   var appKey = opts.appKey
-  var defaultTimeout = opts.defaultTimeout || 5e3 // 5 seconds.
+  var defaultTimeout = (
+    opts.defaultTimeout || 5e3 // 5 seconds.
+  )
+  var timeout_handshake
+
+  if(opts.timers && !isNaN(opts.timers.inactivity))
+    defaultTimeout = opts.timers.inactivity
+  if(opts.timers && !isNaN(opts.timers.handshake))
+    timeout_handshake = opts.timers.handshake
+  timeout_handshake = timeout_handshake || 5e3
+
   opts.permissions = opts.permissions || {}
 
   var create = Api(opts.permissions ? [{
@@ -59,9 +69,15 @@ module.exports = function (opts) {
   create.createClient = function (opts) {
     if(opts.keys) opts.keys = toSodiumKeys(opts.keys)
     if(opts.seed) opts.seed = toBuffer(opts.seed)
-    opts.appKey = toBuffer(opts.appKey || appKey)
+//    opts.appKey = toBuffer(opts.appKey || appKey)
 
-    var snet = createNode(opts)
+    var snet = createNode({
+      keys: opts.keys && toSodiumKeys(opts.keys),
+      seed: opts.seed && toBuffer(opts.seed),
+      appKey: toBuffer(opts.appKey || appKey),
+      timeout: opts.timeout || (opts.timers && opts.timers.handshake) || 5e3
+    })
+
     return function (address, cb) {
       address = coearseAddress(address)
 
@@ -85,6 +101,10 @@ module.exports = function (opts) {
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
         appKey: toBuffer(opts.appKey || appKey),
+
+        //****************************************
+        timeout: timeout_handshake,
+
         authenticate: function (pub, cb) {
           var id = '@'+u.toId(pub)
           api.auth(id, function (err, auth) {
@@ -170,10 +190,6 @@ module.exports = function (opts) {
     }
   })
 }
-
-
-
-
 
 
 
