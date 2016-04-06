@@ -121,7 +121,7 @@ module.exports = function (opts) {
       var peers = api.peers = {}
 
       var server = snet.createServer(setupRPC)
-      server.listen(port, opts.host)
+      server.listen(port)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
