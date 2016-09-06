@@ -2,7 +2,9 @@ var u          = require('./util')
 var Api        = require('./api')
 var Muxrpc     = require('muxrpc')
 var pull       = require('pull-stream')
-var createNode = require('secret-handshake/net')
+var msSHS = require('multiserver/plugins/shs')
+var msNet = require('multiserver/protocols/net')()
+var msOnion = require('multiserver/protocols/onion')()
 var nonPrivate = require('non-private-ip')
 var Inactive   = require('pull-inactivity')
 
@@ -71,7 +73,7 @@ module.exports = function (opts) {
     if(opts.seed) opts.seed = toBuffer(opts.seed)
 //    opts.appKey = toBuffer(opts.appKey || appKey)
 
-    var snet = createNode({
+    var snet = msSHS({
       keys: opts.keys && toSodiumKeys(opts.keys),
       seed: opts.seed && toBuffer(opts.seed),
       appKey: toBuffer(opts.appKey || appKey),
@@ -97,7 +99,7 @@ module.exports = function (opts) {
       manifest: 'sync',
     },
     init: function (api, opts, permissions, manifest) {
-      var snet = createNode({
+      var snet = msSHS({
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
         appKey: toBuffer(opts.appKey || appKey),
@@ -120,8 +122,11 @@ module.exports = function (opts) {
 
       var peers = api.peers = {}
 
-      var server = snet.createServer(setupRPC)
-      server.listen(port)
+      var server;
+      if (host.indexOf(".onion") != -1)
+          server = msOnion.createServer(port, setupRPC)
+      else
+          server = msNet.createServer(port, setupRPC)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
@@ -165,7 +170,12 @@ module.exports = function (opts) {
         connect: function (address, cb) {
           address = coearseAddress(address)
           address.appKey = opts.appKey || appKey
-          snet.connect(address, function (err, stream) {
+
+          var net = msNet
+          if (address.host.indexOf(".onion") != -1)
+              net = msOnion
+
+          net.connect(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
