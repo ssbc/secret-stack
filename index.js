@@ -2,9 +2,13 @@ var u          = require('./util')
 var Api        = require('./api')
 var Muxrpc     = require('muxrpc')
 var pull       = require('pull-stream')
-var msSHS = require('multiserver/plugins/shs')
-var msNet = require('multiserver/protocols/net')()
-var msOnion = require('multiserver/protocols/onion')()
+
+var MultiServer = require('multiserver')
+var WS          = require('multiserver/plugins/ws')
+var Net         = require('multiserver/plugins/net')
+var Onion       = require('multiserver/plugins/onion')
+var Shs         = require('multiserver/plugins/shs')
+
 var nonPrivate = require('non-private-ip')
 var Inactive   = require('pull-inactivity')
 
@@ -34,14 +38,11 @@ function toSodiumKeys (keys) {
 
 function coearseAddress (address) {
   if(isString(address)) address = u.parseAddress(address)
-  if(isString(address.key))
-    return {
-      host: address.host, port: address.port,
-      key: new Buffer(
-        address.key
-          .substring(1, address.key.indexOf('.')),
-        'base64'
-      )
+    if(isString(address.key)) {
+        var protocol = 'net:'
+        if (address.host.endsWith(".onion"))
+            protocol = 'onion:'
+        return protocol + address.host + ':' + address.port + '~shs:'+address.key
     }
   return address
 }
@@ -73,17 +74,23 @@ module.exports = function (opts) {
     if(opts.seed) opts.seed = toBuffer(opts.seed)
 //    opts.appKey = toBuffer(opts.appKey || appKey)
 
-    var snet = msSHS({
+    var shs = Shs({
       keys: opts.keys && toSodiumKeys(opts.keys),
       seed: opts.seed && toBuffer(opts.seed),
       appKey: toBuffer(opts.appKey || appKey),
       timeout: opts.timeout || (opts.timers && opts.timers.handshake) || 5e3
     })
 
+    var ms = MultiServer([
+      [Net({}), shs],
+      [Onion({}), shs],
+      [WS({}), shs]
+    ])
+
     return function (address, cb) {
       address = coearseAddress(address)
 
-      snet.connect(address, function (err, stream) {
+      ms.client(address, function (err, stream) {
         if(err) return cb(err)
         var rpc = Muxrpc(opts.manifest || create.manifest, {})({})
         pull(stream, rpc.createStream(), stream)
@@ -99,7 +106,7 @@ module.exports = function (opts) {
       manifest: 'sync',
     },
     init: function (api, opts, permissions, manifest) {
-      var snet = msSHS({
+      var shs = Shs({
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
         appKey: toBuffer(opts.appKey || appKey),
@@ -122,11 +129,11 @@ module.exports = function (opts) {
 
       var peers = api.peers = {}
 
-      var server;
-      if (host.indexOf(".onion") != -1)
-          server = msOnion.createServer(port, setupRPC)
-      else
-          server = msNet.createServer(port, setupRPC)
+      var ms = MultiServer([
+        [Net({port: port}), shs]
+      ])
+
+      var server = ms.server(setupRPC)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
@@ -152,13 +159,13 @@ module.exports = function (opts) {
 
       return {
         //can be called remotely.
-        publicKey: snet.publicKey,
+        publicKey: shs.publicKey,
         auth: function (pub, cb) { cb() },
         address: function () {
           return this.getAddress()
         },
         getAddress: function () {
-          return [host, port, '@'+u.toId(snet.publicKey)].join(':')
+          return [host, port, '@'+u.toId(shs.publicKey)].join(':')
         },
         manifest: function () {
           return create.manifest
@@ -170,12 +177,7 @@ module.exports = function (opts) {
         connect: function (address, cb) {
           address = coearseAddress(address)
           address.appKey = opts.appKey || appKey
-
-          var net = msNet
-          if (address.host.indexOf(".onion") != -1)
-              net = msOnion
-
-          net.connect(address, function (err, stream) {
+          ms.client(address, function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
