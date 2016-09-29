@@ -159,13 +159,13 @@ module.exports = function (opts) {
 
       return {
         //can be called remotely.
-        publicKey: shs.publicKey,
+        publicKey: opts.keys.public,
         auth: function (pub, cb) { cb() },
         address: function () {
           return this.getAddress()
         },
         getAddress: function () {
-          return [host, port, '@'+u.toId(shs.publicKey)].join(':')
+          return [host, port, '@'+u.toId(opts.keys.public)].join(':')
         },
         manifest: function () {
           return create.manifest
