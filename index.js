@@ -16,6 +16,11 @@ function isFunction (f) { return 'function' === typeof f }
 function isString (s) { return 'string' === typeof s }
 function isObject (o) { return o && 'object' === typeof o && !Array.isArray(o) }
 
+function toBase64 (s) {
+  if(isString(s)) return s
+  else s.toString('base64') //assume a buffer
+}
+
 function each(obj, iter) {
   if(Array.isArray(obj)) return obj.forEach(iter)
   for(var k in obj) iter(obj[k], k, obj)
@@ -199,4 +204,5 @@ module.exports = function (opts) {
     }
   })
 }
+
 
