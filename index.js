@@ -13,8 +13,8 @@ var nonPrivate = require('non-private-ip')
 var Inactive   = require('pull-inactivity')
 
 function isFunction (f) { return 'function' === typeof f }
-
 function isString (s) { return 'string' === typeof s }
+function isObject (o) { return o && 'object' === typeof o && !Array.isArray(o) }
 
 function each(obj, iter) {
   if(Array.isArray(obj)) return obj.forEach(iter)
@@ -37,13 +37,12 @@ function toSodiumKeys (keys) {
 }
 
 function coearseAddress (address) {
-  if(isString(address)) address = u.parseAddress(address)
-    if(isString(address.key)) {
-        var protocol = 'net:'
-        if (address.host.endsWith(".onion"))
-            protocol = 'onion:'
-        return protocol + address.host + ':' + address.port + '~shs:'+address.key
-    }
+  if(isObject(address)) {
+    var protocol = 'net'
+    if (address.host.endsWith(".onion"))
+        protocol = 'onion'
+    return [protocol, address.host, address.port].join(':') +'~'+['shs', toBase64(address.key)].join(':')
+  }
   return address
 }
 
@@ -72,7 +71,6 @@ module.exports = function (opts) {
   create.createClient = function (opts) {
     if(opts.keys) opts.keys = toSodiumKeys(opts.keys)
     if(opts.seed) opts.seed = toBuffer(opts.seed)
-//    opts.appKey = toBuffer(opts.appKey || appKey)
 
     var shs = Shs({
       keys: opts.keys && toSodiumKeys(opts.keys),
@@ -159,13 +157,13 @@ module.exports = function (opts) {
 
       return {
         //can be called remotely.
-        publicKey: opts.keys.public,
+        publicKey: shs.publicKey,
         auth: function (pub, cb) { cb() },
         address: function () {
           return this.getAddress()
         },
         getAddress: function () {
-          return [host, port, '@'+u.toId(opts.keys.public)].join(':')
+          return ms.stringify()
         },
         manifest: function () {
           return create.manifest
@@ -175,9 +173,7 @@ module.exports = function (opts) {
         },
         //cannot be called remote.
         connect: function (address, cb) {
-          address = coearseAddress(address)
-          address.appKey = opts.appKey || appKey
-          ms.client(address, function (err, stream) {
+          ms.client(coearseAddress(address), function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
@@ -185,7 +181,8 @@ module.exports = function (opts) {
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
           api.closed = true
-          server.close(function (err) {
+
+          ;(server.close || server)(function (err) {
             api.emit('close', err)
             cb && cb(err)
           })
@@ -202,6 +199,4 @@ module.exports = function (opts) {
     }
   })
 }
-
-
 
