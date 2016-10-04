@@ -133,7 +133,8 @@ module.exports = function (opts) {
       var peers = api.peers = {}
 
       var ms = MultiServer([
-        [Net({port: port}), shs]
+        [Net({port: port}), shs],
+        [Onion({server: false}), shs]
       ])
 
       var server = ms.server(setupRPC)
