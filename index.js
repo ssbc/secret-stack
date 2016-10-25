@@ -54,7 +54,7 @@ function coearseAddress (address) {
 //opts must have appKey
 module.exports = function (opts) {
 
-  var appKey = opts.appKey
+  var appKey = (opts && opts.caps && opts.caps.shs || opts.appKey)
   var defaultTimeout = (
     opts.defaultTimeout || 5e3 // 5 seconds.
   )
@@ -109,10 +109,11 @@ module.exports = function (opts) {
       manifest: 'sync',
     },
     init: function (api, opts, permissions, manifest) {
+      var shsCap = (opts.caps && opts.caps.shs) || opts.appKey || appKey
       var shs = Shs({
         keys: opts.keys && toSodiumKeys(opts.keys),
         seed: opts.seed,
-        appKey: toBuffer(opts.appKey || appKey),
+        appKey: toBuffer(shsCap),
 
         //****************************************
         timeout: timeout_handshake,
@@ -187,7 +188,6 @@ module.exports = function (opts) {
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
           api.closed = true
-
           ;(server.close || server)(function (err) {
             api.emit('close', err)
             cb && cb(err)
@@ -205,5 +205,9 @@ module.exports = function (opts) {
     }
   })
 }
+
+
+
+
 
 
