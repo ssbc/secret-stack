@@ -132,10 +132,15 @@ module.exports = function (opts) {
 
       var peers = api.peers = {}
 
-      var ms = MultiServer([
+      var protocols = [
         [Net({port: port, host: host}), shs],
         [Onion({server: false}), shs]
-      ])
+      ]
+
+      if (opts["tor-only"])
+          protocols = [[Onion({server: false}), shs]]
+
+      var ms = MultiServer(protocols)
 
       var server = ms.server(setupRPC)
 
