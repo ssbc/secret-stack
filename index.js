@@ -133,7 +133,7 @@ module.exports = function (opts) {
       var peers = api.peers = {}
 
       var ms = MultiServer([
-        [Net({port: port}), shs],
+        [Net({port: port, host: host}), shs],
         [Onion({server: false}), shs]
       ])
 
