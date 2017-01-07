@@ -149,7 +149,7 @@ module.exports = function (opts) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
-        if(timeout > 0) rpcStream = Inactive(rpcStream, opts.timeout)
+        if(timeout > 0) rpcStream = Inactive(rpcStream, timeout)
 
         pull(stream, rpcStream, stream)
 
