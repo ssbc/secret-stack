@@ -133,17 +133,19 @@ module.exports = function (opts) {
 
       var peers = api.peers = {}
 
-      var protocols = [
+      var server_protocols = [
         [Net({port: port, host: host}), shs],
         [Onion({server: false}), shs]
       ]
+      client_protocols = server_protocols
 
-      if (opts["tor-only"])
-          protocols = [[Onion({server: false}), shs]]
+        if (opts["tor-only"])
+          client_protocols = [[Onion({server: false}), shs]]
 
-      var ms = MultiServer(protocols)
+      var msServer = MultiServer(server_protocols)
+      var msClient = MultiServer(client_protocols)
 
-      var server = ms.server(setupRPC)
+      var server = msServer.server(setupRPC)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
@@ -175,7 +177,7 @@ module.exports = function (opts) {
           return this.getAddress()
         },
         getAddress: function () {
-          return ms.stringify()
+          return msServer.stringify()
         },
         manifest: function () {
           return create.manifest
@@ -185,7 +187,7 @@ module.exports = function (opts) {
         },
         //cannot be called remote.
         connect: function (address, cb) {
-          ms.client(coearseAddress(address), function (err, stream) {
+          msClient.client(coearseAddress(address), function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
