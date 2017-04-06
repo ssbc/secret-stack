@@ -51,6 +51,23 @@ function coearseAddress (address) {
   return address
 }
 
+var ip = require('ip')
+
+function parse(addr) {
+  var parts = addr.split('~')[0].split(':')
+  var protocol = parts[0], host = parts[1]
+  return {
+    protocol: protocol,
+    group: (ip.isLoopback(host) || !host) ? 'loopback' : ip.isPrivate(host) ? 'local' : 'internet',
+    host: host
+  }
+}
+
+function msLogger (stream) {
+  console.log('MULTISERVER', parse(stream.address))
+  return stream
+}
+
 //opts must have appKey
 module.exports = function (opts) {
 
@@ -88,7 +105,7 @@ module.exports = function (opts) {
       [Net({}), shs],
       [Onion({}), shs],
       [WS({}), shs]
-    ])
+    ], msLogger)
 
     return function (address, cb) {
       address = coearseAddress(address)
@@ -141,7 +158,7 @@ module.exports = function (opts) {
       if (opts["tor-only"])
           protocols = [[Onion({server: false}), shs]]
 
-      var ms = MultiServer(protocols)
+      var ms = MultiServer(protocols, msLogger)
 
       var server = ms.server(setupRPC)
 
@@ -210,6 +227,16 @@ module.exports = function (opts) {
     }
   })
 }
+
+
+
+
+
+
+
+
+
+
 
 
 
