@@ -250,12 +250,3 @@ module.exports = function (opts) {
   })
 }
 
-<<<<<<< HEAD
-=======
-
-
->>>>>>> logger
-
-
-
-
