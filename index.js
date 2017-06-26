@@ -58,13 +58,22 @@ module.exports = function (opts) {
   var defaultTimeout = (
     opts.defaultTimeout || 5e3 // 5 seconds.
   )
-  var timeout_handshake
+  var timeout_handshake, timeout_inactivity
 
-  if(opts.timers && !isNaN(opts.timers.inactivity))
-    defaultTimeout = opts.timers.inactivity
+//  if(opts.timers && !isNaN(opts.timers.inactivity))
+//    defaultTimeout = opts.timers.inactivity
+
   if(opts.timers && !isNaN(opts.timers.handshake))
     timeout_handshake = opts.timers.handshake
   timeout_handshake = timeout_handshake || 5e3
+
+  if(opts.timers && !isNaN(opts.timers.inactivity))
+    timeout_inactivity = opts.timers.inactivity
+  timeout_inactivity = timeout_inactivity || 300e3
+
+  //set all timeouts to one setting, needed in the tests.
+  if(opts.timeout)
+    timeout_handshake = timeout_inactivity = opt.timeout
 
   opts.permissions = opts.permissions || {}
 
@@ -147,9 +156,9 @@ module.exports = function (opts) {
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
-        var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
+//        var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
-        if(timeout > 0) rpcStream = Inactive(rpcStream, timeout)
+        if(timeout_inactivity > 0) rpcStream = Inactive(rpcStream, timeout_inactivity)
 
         pull(stream, rpcStream, stream)
 
@@ -210,9 +219,5 @@ module.exports = function (opts) {
     }
   })
 }
-
-
-
-
 
 

@@ -6,6 +6,10 @@ function isFunction (f) {
   return 'function' === typeof f
 }
 
+function isString (s) {
+  return s && 'string' === typeof s
+}
+
 function merge (a, b, mapper) {
 
   for(var k in b) {
@@ -16,6 +20,13 @@ function merge (a, b, mapper) {
   }
 
   return a
+}
+
+function find(ary, test) {
+  var v
+  for(var i = 0; i < ary.length; i++)
+    if(v = test(ary[i], i, ary)) return v
+  return v
 }
 
 module.exports = function (plugins) {
@@ -53,6 +64,12 @@ module.exports = function (plugins) {
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
+    if(isString(plug.name))
+      if(find(create.plugins, function (_plug) {
+        return _plug.name === plug.name
+      }))
+        throw new Error('plugin named:'+plug.name+' is already loaded')
+
     var name = plug.name
     if(plug.manifest)
       create.manifest =
@@ -69,3 +86,4 @@ module.exports = function (plugins) {
 
   return create
 }
+
