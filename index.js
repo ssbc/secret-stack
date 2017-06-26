@@ -187,7 +187,7 @@ module.exports = function (opts) {
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var rpcStream = rpc.createStream()
-        if(timeout > 0) rpcStream = Inactive(rpcStream, timeout)
+        if(timeout_inactivity > 0) rpcStream = Inactive(rpcStream, timeout_inactivity)
         rpc.meta = stream.meta
 
         pull(stream, rpcStream, stream)
