@@ -2,6 +2,7 @@ var u          = require('./util')
 var Api        = require('./api')
 var Muxrpc     = require('muxrpc')
 var pull       = require('pull-stream')
+var Rate       = require('pull-rate')
 
 var MultiServer = require('multiserver')
 var WS          = require('multiserver/plugins/ws')
@@ -51,6 +52,30 @@ function coearseAddress (address) {
   return address
 }
 
+var ip = require('ip')
+
+function parse(addr) {
+  var parts = addr.split('~')[0].split(':')
+  var protocol = parts[0], host = parts[1]
+  return {
+    protocol: protocol,
+    group: (ip.isLoopback(host) || !host) ? 'loopback' : ip.isPrivate(host) ? 'local' : 'internet',
+    host: host
+  }
+}
+
+function msLogger (stream) {
+  var meta = {tx: 0, rx:0, pk: 0}
+  stream = Rate(stream, function (len, up) {
+    meta.pk ++
+    if(up) meta.tx += len
+    else meta.rx += len
+  })
+  stream.meta = meta
+  return stream
+}
+
+
 //opts must have appKey
 module.exports = function (opts) {
 
@@ -78,7 +103,7 @@ module.exports = function (opts) {
       [Net({}), shs],
       [Onion({}), shs],
       [WS({}), shs]
-    ])
+    ], msLogger)
 
     return function (address, cb) {
       address = coearseAddress(address)
@@ -155,14 +180,15 @@ module.exports = function (opts) {
       if (opts["tor-only"])
           protocols = [[Onion({server: false}), shs]]
 
-      var ms = MultiServer(protocols)
+      var ms = MultiServer(protocols, msLogger)
 
       var server = ms.server(setupRPC)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var rpcStream = rpc.createStream()
-        if(timeout_inactivity > 0) rpcStream = Inactive(rpcStream, timeout_inactivity)
+        if(timeout > 0) rpcStream = Inactive(rpcStream, timeout)
+        rpc.meta = stream.meta
 
         pull(stream, rpcStream, stream)
 
@@ -223,4 +249,13 @@ module.exports = function (opts) {
     }
   })
 }
+
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> logger
+
+
+
 
