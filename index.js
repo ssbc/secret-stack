@@ -71,7 +71,7 @@ module.exports = function (opts) {
       keys: opts.keys && toSodiumKeys(opts.keys),
       seed: opts.seed && toBuffer(opts.seed),
       appKey: toBuffer(opts.appKey || appKey),
-      timeout: opts.timeout || (opts.timers && opts.timers.handshake) || 5e3
+      timeout: opts.timeout || (opts.timers && opts.timers.handshake) || 10e3
     })
 
     var ms = MultiServer([
@@ -107,7 +107,8 @@ module.exports = function (opts) {
       var timeout_handshake, timeout_inactivity
       if(opts.timers && !isNaN(opts.timers.handshake))
         timeout_handshake = opts.timers.handshake
-      timeout_handshake = timeout_handshake || 5e3
+
+      timeout_handshake = timeout_handshake || (opts.timers ? 15e3 : 5e3)
 
       if(opts.timers && !isNaN(opts.timers.inactivity))
         timeout_inactivity = opts.timers.inactivity
