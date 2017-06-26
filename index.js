@@ -2,6 +2,7 @@ var u          = require('./util')
 var Api        = require('./api')
 var Muxrpc     = require('muxrpc')
 var pull       = require('pull-stream')
+var Rate       = require('pull-rate')
 
 var MultiServer = require('multiserver')
 var WS          = require('multiserver/plugins/ws')
@@ -64,9 +65,16 @@ function parse(addr) {
 }
 
 function msLogger (stream) {
-  console.log('MULTISERVER', parse(stream.address))
+  var meta = {tx: 0, rx:0, pk: 0}
+  stream = Rate(stream, function (len, up) {
+    meta.pk ++
+    if(up) meta.tx += len
+    else meta.rx += len
+  })
+  stream.meta = meta
   return stream
 }
+
 
 //opts must have appKey
 module.exports = function (opts) {
@@ -163,10 +171,13 @@ module.exports = function (opts) {
       var server = ms.server(setupRPC)
 
       function setupRPC (stream, manf, isClient) {
+        console.log(stream)
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
         if(timeout > 0) rpcStream = Inactive(rpcStream, timeout)
+        if(!stream.meta) throw new Error('expected stream.meta')
+        rpc.meta = stream.meta
 
         pull(stream, rpcStream, stream)
 
@@ -227,19 +238,6 @@ module.exports = function (opts) {
     }
   })
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
