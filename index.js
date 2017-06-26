@@ -55,25 +55,6 @@ function coearseAddress (address) {
 module.exports = function (opts) {
 
   var appKey = (opts && opts.caps && opts.caps.shs || opts.appKey)
-  var defaultTimeout = (
-    opts.defaultTimeout || 5e3 // 5 seconds.
-  )
-  var timeout_handshake, timeout_inactivity
-
-//  if(opts.timers && !isNaN(opts.timers.inactivity))
-//    defaultTimeout = opts.timers.inactivity
-
-  if(opts.timers && !isNaN(opts.timers.handshake))
-    timeout_handshake = opts.timers.handshake
-  timeout_handshake = timeout_handshake || 5e3
-
-  if(opts.timers && !isNaN(opts.timers.inactivity))
-    timeout_inactivity = opts.timers.inactivity
-  timeout_inactivity = timeout_inactivity || 300e3
-
-  //set all timeouts to one setting, needed in the tests.
-  if(opts.timeout)
-    timeout_handshake = timeout_inactivity = opt.timeout
 
   opts.permissions = opts.permissions || {}
 
@@ -118,6 +99,29 @@ module.exports = function (opts) {
       manifest: 'sync',
     },
     init: function (api, opts, permissions, manifest) {
+
+      //XXX: LEGACY CRUFT - TIMEOUTS
+      var defaultTimeout = (
+        opts.defaultTimeout || 5e3 // 5 seconds.
+      )
+      var timeout_handshake, timeout_inactivity
+      if(opts.timers && !isNaN(opts.timers.handshake))
+        timeout_handshake = opts.timers.handshake
+      timeout_handshake = timeout_handshake || 5e3
+
+      if(opts.timers && !isNaN(opts.timers.inactivity))
+        timeout_inactivity = opts.timers.inactivity
+
+      //if opts.timers are set, pick a longer default
+      //but if not, set a short default (as needed in the tests)
+      timeout_inactivity = timeout_inactivity || (opts.timers ? 600e3 : 5e3)
+
+      //set all timeouts to one setting, needed in the tests.
+      if(opts.timeout)
+        timeout_handshake = timeout_inactivity = opts.timeout
+
+
+
       var shsCap = (opts.caps && opts.caps.shs) || opts.appKey || appKey
       var shs = Shs({
         keys: opts.keys && toSodiumKeys(opts.keys),
@@ -156,7 +160,6 @@ module.exports = function (opts) {
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
-//        var timeout = opts.timeout == null ? defaultTimeout : opts.timeout
         var rpcStream = rpc.createStream()
         if(timeout_inactivity > 0) rpcStream = Inactive(rpcStream, timeout_inactivity)
 
@@ -219,5 +222,4 @@ module.exports = function (opts) {
     }
   })
 }
-
 
