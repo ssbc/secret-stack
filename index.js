@@ -187,12 +187,11 @@ module.exports = function (opts) {
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var rpcStream = rpc.createStream()
-        if(timeout_inactivity > 0) rpcStream = Inactive(rpcStream, timeout_inactivity)
+        var id = rpc.id = '@'+u.toId(stream.remote)
+        if(timeout_inactivity > 0 && id !== rpc.id) rpcStream = Inactive(rpcStream, timeout_inactivity)
         rpc.meta = stream.meta
 
         pull(stream, rpcStream, stream)
-
-        var id = rpc.id = '@'+u.toId(stream.remote)
 
         //keep track of current connections.
         if(!peers[id]) peers[id] = []
