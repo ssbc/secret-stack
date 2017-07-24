@@ -146,8 +146,6 @@ module.exports = function (opts) {
       if(opts.timeout)
         timeout_handshake = timeout_inactivity = opts.timeout
 
-
-
       var shsCap = (opts.caps && opts.caps.shs) || opts.appKey || appKey
       var shs = Shs({
         keys: opts.keys && toSodiumKeys(opts.keys),
@@ -165,6 +163,10 @@ module.exports = function (opts) {
           })
         }
       })
+
+      //figure out the local key. take this from the shs plugin,
+      //because we may have only passed in a seed.
+      var id = '@'+u.toId(shs.publicKey)
 
       //use configured port, or a random user port.
       var port = opts.port || 1024+(~~(Math.random()*(65536-1024)))
@@ -187,17 +189,17 @@ module.exports = function (opts) {
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth)
         var rpcStream = rpc.createStream()
-        var id = rpc.id = '@'+u.toId(stream.remote)
+        rpc.id = '@'+u.toId(stream.remote)
         if(timeout_inactivity > 0 && id !== rpc.id) rpcStream = Inactive(rpcStream, timeout_inactivity)
         rpc.meta = stream.meta
 
         pull(stream, rpcStream, stream)
 
         //keep track of current connections.
-        if(!peers[id]) peers[id] = []
-        peers[id].push(rpc)
+        if(!peers[rpc.id]) peers[rpc.id] = []
+        peers[rpc.id].push(rpc)
         rpc.once('closed', function () {
-          peers[id].splice(peers[id].indexOf(rpc), 1)
+          peers[rpc.id].splice(peers[rpc.id].indexOf(rpc), 1)
         })
 
         api.emit('rpc:connect', rpc, !!isClient)
@@ -248,4 +250,5 @@ module.exports = function (opts) {
     }
   })
 }
+
 
