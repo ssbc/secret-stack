@@ -108,7 +108,7 @@ module.exports = function (opts) {
     return function (address, cb) {
       address = coearseAddress(address)
 
-      ms.client(address, function (err, stream) {
+      return ms.client(address, function (err, stream) {
         if(err) return cb(err)
         var rpc = Muxrpc(opts.manifest || create.manifest, {})({})
         pull(stream, rpc.createStream(), stream)
