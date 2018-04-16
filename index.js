@@ -1,3 +1,4 @@
+'use strict'
 var u          = require('./util')
 var Api        = require('./api')
 var Muxrpc     = require('muxrpc')
@@ -101,7 +102,7 @@ module.exports = function (opts) {
         //function () { return shs }
       ]
 
-      var server, msServer, msClient
+      var server, ms
 
       function createServer () {
         if(server) return server
@@ -118,7 +119,7 @@ module.exports = function (opts) {
           })
         })
 
-        var ms = MultiServer(suites)
+        ms = MultiServer(suites)
         server = ms.server(setupRPC)
         return server
       }
