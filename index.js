@@ -118,8 +118,8 @@ module.exports = function (opts) {
           })
         })
 
-        msClient = msServer = MultiServer(suites)
-        server = msServer.server(setupRPC)
+        var ms = MultiServer(suites)
+        server = ms.server(setupRPC)
         return server
       }
 
@@ -154,7 +154,7 @@ module.exports = function (opts) {
           return this.getAddress()
         },
         getAddress: function () {
-          createServer(); return msServer.stringify()
+          createServer(); return ms.stringify()
         },
         manifest: function () {
           return create.manifest
@@ -165,13 +165,16 @@ module.exports = function (opts) {
         //cannot be called remote.
         connect: function (address, cb) {
           createServer()
-          msClient.client(coearseAddress(address), function (err, stream) {
+          ms.client(coearseAddress(address), function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
 
         multiserver: {
-          transport: function (fn) { transports.push(fn); return this },
+          transport: function (fn) {
+            if(server) throw new Error('cannot add protocol after server initialized')
+            transports.push(fn); return this
+          },
           transform: function (fn) { transforms.push(fn); return this },
         },
         close: function (err, cb) {
