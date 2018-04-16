@@ -44,7 +44,7 @@ create.use({
     var id = args.shift()
     fn(id, function (err, res) {
       if(err) return cb(err)
-      if(id === '@'+u.toId(alice.publicKey))
+      if(id === alice.id)
         cb(null, {allow: ['hello', 'aliceOnly']})
       else cb()
     })
@@ -96,6 +96,7 @@ var antibob = create({
 tape('antialice cannot connect to alice because they use different appkeys', function (t) {
   antialice.connect(alice.address(), function (err, rpc) {
     t.ok(err)
+    if(rpc) throw new Error('should not have connected successfully')
     t.end()
   })
 })

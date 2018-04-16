@@ -42,7 +42,7 @@ create.use({
     var id = args.shift()
     fn(id, function (err, res) {
       if(err) return cb(err)
-      if(id === '@'+u.toId(alice.publicKey))
+      if(id === alice.id)
         cb(null, {allow: ['hello', 'aliceOnly']})
       else cb()
     })
@@ -88,4 +88,5 @@ tape('cleanup', function (t) {
   carol.close(true)
   t.end()
 })
+
 

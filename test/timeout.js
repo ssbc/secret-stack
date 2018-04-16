@@ -28,9 +28,13 @@ var create = Illuminati({
   }
 })
 
-var alice = create({ seed: seeds.alice, timeout: 100, defaultTimeout: 5e3 })
+var alice = create({ seed: seeds.alice, timeout: 200, defaultTimeout: 5e3 })
 var carol = create({ seed: seeds.alice, timeout: 0, defaultTimeout: 10 })
-var bob = create({ seed: seeds.bob })
+var bob = create({ seed: seeds.bob , timeout: 200, defaultTimeout: 2000})
+
+tape('delay startup', function (t) {
+  setTimeout(t.end, 500)
+})
 
 tape('alice connects to bob', function (t) {
 
@@ -60,6 +64,5 @@ tape('cleanup', function (t) {
   alice.close(true); bob.close(true); carol.close(true)
   t.end()
 })
-
 
 
