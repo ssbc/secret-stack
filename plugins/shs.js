@@ -37,7 +37,6 @@ exports.init = function (api, config, permissions) {
     timeout_handshake = timeout_inactivity = opts.timeout
 
   var shsCap = (config.caps && config.caps.shs) || config.appKey
-  console.log('CAP', shsCap, config)
   if(!shsCap) throw new Error('secret-stack/plugins/shs must have caps.shs configured')
 
   var shs = Shs({
@@ -65,6 +64,7 @@ exports.init = function (api, config, permissions) {
     return shs
   })
 }
+
 
 
 
