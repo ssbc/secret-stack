@@ -152,7 +152,7 @@ module.exports = function (opts) {
         //can be called remotely.
         auth: function (pub, cb) { cb() },
         address: function () {
-          return this.getAddress()
+          return api.getAddress()
         },
         getAddress: function () {
           createServer(); return ms.stringify()
@@ -177,6 +177,9 @@ module.exports = function (opts) {
             transports.push(fn); return this
           },
           transform: function (fn) { transforms.push(fn); return this },
+          parse: function (str) {
+            return ms.parse(str)
+          }
         },
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
@@ -201,4 +204,5 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
+
 
