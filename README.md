@@ -30,14 +30,14 @@ var createApp = SecretStack({
     anonymous: [
       'bar'
     ]
-  }
+  },
   init: function (api, opts) {
     //set up and return some methods...
     return {
       bar: function (arg, cb) {
         //do something async
         cb(null, result)
-      })
+      }
     }
   }
 })
