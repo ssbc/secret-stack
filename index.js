@@ -102,29 +102,55 @@ module.exports = function (opts) {
         //function () { return shs }
       ]
 
-      var server, ms
+      var server, ms, ms_client
 
-      function createServer () {
+      function setupMultiserver () {
         if(server) return server
-        var suites = []
         if(transforms.length < 1)
           throw new Error('secret-stack needs at least 1 transform protocol')
 
+        var server_suites = []
+        var client_suites = []
+
         transforms.forEach(function (createTransform, instance) {
           transports.forEach(function (createTransport) {
-            suites.push([
-              createTransport(instance),
-              createTransform({})
-            ])
+            var transport = createTransport(instance)
+            var transform = createTransform({})
+
+            var matchesIncoming = false
+            for (var incTransportType in opts.connections.incoming)
+              opts.connections.incoming[incTransportType].forEach(function(conf) {
+                matchesIncoming = transport.name == incTransportType && transform.name == conf.transform
+              })
+
+            if (matchesIncoming)
+              server_suites.push([
+                transport,
+                transform
+              ])
+
+            var matchesOutgoing = false
+            for (var outTransportType in opts.connections.outgoing)
+              opts.connections.outgoing[outTransportType].forEach(function(conf) {
+                matchesOutgoing = transport.name == outTransportType && transform.name == conf.transform
+              })
+
+            if (matchesOutgoing)
+              client_suites.push([
+                transport,
+                transform
+              ])
           })
         })
 
-        ms = MultiServer(suites)
+        ms_client = MultiServer(client_suites)
+
+        ms = MultiServer(server_suites)
         server = ms.server(setupRPC)
         return server
       }
 
-      setImmediate(createServer)
+      setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth === true ? create.permissions.anonymous : stream.auth)
@@ -155,7 +181,8 @@ module.exports = function (opts) {
           return api.getAddress()
         },
         getAddress: function () {
-          createServer(); return ms.stringify()
+          setupMultiserver()
+          return ms.stringify()
         },
         manifest: function () {
           return create.manifest
@@ -165,8 +192,8 @@ module.exports = function (opts) {
         },
         //cannot be called remote.
         connect: function (address, cb) {
-          createServer()
-          ms.client(coearseAddress(address), function (err, stream) {
+          setupMultiserver()
+          ms_client.client(coearseAddress(address), function (err, stream) {
             return err ? cb(err) : cb(null, setupRPC(stream, null, true))
           })
         },
@@ -177,7 +204,7 @@ module.exports = function (opts) {
             transports.push(fn); return this
           },
           transform: function (fn) { transforms.push(fn); return this },
-          parse: function (str) {
+          parse: function (str) { // FIXME: server / client? or try both?
             return ms.parse(str)
           }
         },
