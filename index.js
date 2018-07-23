@@ -118,10 +118,13 @@ module.exports = function (opts) {
             var transform = createTransform({})
 
             var matchesIncoming = false
-            for (var incTransportType in opts.connections.incoming)
-              opts.connections.incoming[incTransportType].forEach(function(conf) {
-                matchesIncoming = transport.name == incTransportType && transform.name == conf.transform
+            for (var incTransportType in opts.connections.incoming) {
+              matchesIncoming = opts.connections.incoming[incTransportType].some(function(conf) {
+                 return transport.name == incTransportType && transform.name == conf.transform
               })
+              if (matchesIncoming)
+                break
+            }
 
             if (matchesIncoming)
               server_suites.push([
@@ -130,10 +133,13 @@ module.exports = function (opts) {
               ])
 
             var matchesOutgoing = false
-            for (var outTransportType in opts.connections.outgoing)
-              opts.connections.outgoing[outTransportType].forEach(function(conf) {
-                matchesOutgoing = transport.name == outTransportType && transform.name == conf.transform
+            for (var outTransportType in opts.connections.outgoing) {
+              matchesOutgoing = opts.connections.outgoing[outTransportType].some(function(conf) {
+                return transport.name == outTransportType && transform.name == conf.transform
               })
+              if (matchesOutgoing)
+                break
+            }
 
             if (matchesOutgoing)
               client_suites.push([
