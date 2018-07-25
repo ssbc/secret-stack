@@ -112,40 +112,39 @@ module.exports = function (opts) {
         var server_suites = []
         var client_suites = []
 
-        transforms.forEach(function (createTransform, instance) {
-          transports.forEach(function (createTransport) {
-            var transport = createTransport(instance)
-            var transform = createTransform({})
-
-            var matchesIncoming = false
+        transforms.forEach(function (transform) {
+          transports.forEach(function (transport) {
+            var matchingIncomingConf
             for (var incTransportType in opts.connections.incoming) {
-              matchesIncoming = opts.connections.incoming[incTransportType].some(function(conf) {
+              matchingIncomingConf = opts.connections.incoming[incTransportType].find(function(conf) {
                  return transport.name == incTransportType && transform.name == conf.transform
               })
-              if (matchesIncoming)
+              if (matchingIncomingConf)
                 break
             }
 
-            if (matchesIncoming)
+            if (matchingIncomingConf) {
               server_suites.push([
-                transport,
-                transform
+                transport.create(matchingIncomingConf),
+                transform.create()
               ])
+            }
 
-            var matchesOutgoing = false
+            var matchingOutgoingConf
             for (var outTransportType in opts.connections.outgoing) {
-              matchesOutgoing = opts.connections.outgoing[outTransportType].some(function(conf) {
+              matchingOutgoingConf = opts.connections.outgoing[outTransportType].find(function(conf) {
                 return transport.name == outTransportType && transform.name == conf.transform
               })
-              if (matchesOutgoing)
+              if (matchingOutgoingConf)
                 break
             }
 
-            if (matchesOutgoing)
+            if (matchingOutgoingConf) {
               client_suites.push([
-                transport,
-                transform
+                transport.create(matchingOutgoingConf),
+                transform.create()
               ])
+            }
           })
         })
 
@@ -183,12 +182,12 @@ module.exports = function (opts) {
         config: opts,
         //can be called remotely.
         auth: function (pub, cb) { cb() },
-        address: function () {
-          return api.getAddress()
+        address: function (scope) {
+          return api.getAddress(scope)
         },
-        getAddress: function () {
+        getAddress: function (scope) {
           setupMultiserver()
-          return ms.stringify()
+          return ms.stringify(scope)
         },
         manifest: function () {
           return create.manifest
@@ -205,11 +204,11 @@ module.exports = function (opts) {
         },
 
         multiserver: {
-          transport: function (fn) {
+          transport: function (transport) {
             if(server) throw new Error('cannot add protocol after server initialized')
-            transports.push(fn); return this
+            transports.push(transport); return this
           },
-          transform: function (fn) { transforms.push(fn); return this },
+          transform: function (transform) { transforms.push(transform); return this },
           parse: function (str) { // FIXME: server / client? or try both?
             return ms.parse(str)
           }
@@ -237,5 +236,3 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
-
-

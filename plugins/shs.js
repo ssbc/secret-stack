@@ -60,8 +60,11 @@ exports.init = function (api, config, permissions) {
   api.id = id
   api.publicKey = id
 
-  api.multiserver.transform(function (instance) {
-    return shs
+  api.multiserver.transform({
+    name: 'shs',
+    create: function () {
+      return shs
+    }
   })
 }
 
