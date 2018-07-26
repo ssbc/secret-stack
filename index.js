@@ -94,6 +94,17 @@ module.exports = function (opts) {
       //but if not, set a short default (as needed in the tests)
       timeout_inactivity = timeout_inactivity || (opts.timers ? 600e3 : 5e3)
 
+      // needed for tests
+      if (!opts.connections)
+        opts.connections = {
+          incoming: {
+            net: [{ scope: "public", "transform": "shs" }]
+          },
+          outgoing: {
+            net: [{ transform: "shs" }]
+          }
+        }
+
       var peers = api.peers = {}
 
       var transports = []
