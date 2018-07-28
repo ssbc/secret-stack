@@ -123,41 +123,33 @@ module.exports = function (opts) {
         var server_suites = []
         var client_suites = []
 
-        transforms.forEach(function (transform) {
-          transports.forEach(function (transport) {
-            var matchingIncomingConf
-            for (var incTransportType in opts.connections.incoming) {
-              matchingIncomingConf = opts.connections.incoming[incTransportType].find(function(conf) {
-                 return transport.name == incTransportType && transform.name == conf.transform
+        for (var incTransportType in opts.connections.incoming) {
+          opts.connections.incoming[incTransportType].forEach(function (conf) {
+            transforms.forEach(function (transform) {
+              transports.forEach(function (transport) {
+                if (transport.name == incTransportType && transform.name == conf.transform)
+                  server_suites.push([
+                    transport.create(conf),
+                    transform.create()
+                  ])
               })
-              if (matchingIncomingConf)
-                break
-            }
-
-            if (matchingIncomingConf) {
-              server_suites.push([
-                transport.create(matchingIncomingConf),
-                transform.create()
-              ])
-            }
-
-            var matchingOutgoingConf
-            for (var outTransportType in opts.connections.outgoing) {
-              matchingOutgoingConf = opts.connections.outgoing[outTransportType].find(function(conf) {
-                return transport.name == outTransportType && transform.name == conf.transform
-              })
-              if (matchingOutgoingConf)
-                break
-            }
-
-            if (matchingOutgoingConf) {
-              client_suites.push([
-                transport.create(matchingOutgoingConf),
-                transform.create()
-              ])
-            }
+            })
           })
-        })
+        }
+
+        for (var outTransportType in opts.connections.outgoing) {
+          opts.connections.outgoing[outTransportType].forEach(function (conf) {
+            transforms.forEach(function (transform) {
+              transports.forEach(function (transport) {
+                if (transport.name == outTransportType && transform.name == conf.transform)
+                  client_suites.push([
+                    transport.create(conf),
+                    transform.create()
+                  ])
+              })
+            })
+          })
+        }
 
         ms_client = MultiServer(client_suites)
 
