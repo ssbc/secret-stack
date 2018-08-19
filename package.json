@@ -11,7 +11,7 @@
     "hoox": "0.0.1",
     "ip": "^1.1.5",
     "map-merge": "^1.1.0",
-    "multiserver": "ssbc/multiserver#32e1e1fb893932466f6648eb3d1f3e1c898ecb31",
+    "multiserver": "^1.13.0",
     "muxrpc": "^6.4.0",
     "non-private-ip": "^1.4.3",
     "pull-inactivity": "~2.1.1",
