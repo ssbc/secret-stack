@@ -11,6 +11,7 @@
     "debug": "^4.1.0",
     "hoox": "0.0.1",
     "ip": "^1.1.5",
+    "jshint": "^2.9.6",
     "map-merge": "^1.1.0",
     "multiserver": "^3.1.0",
     "muxrpc": "^6.4.0",
@@ -27,7 +28,9 @@
   },
   "scripts": {
     "prepublishOnly": "npm ls &&  npm test",
-    "test": "set -e; for t in test/*.js; do node $t; done"
+    "hint": "jshint *.js",
+    "tests": "for t in test/*.js; do node $t; done",
+    "test": "set -e; npm run hint; npm run tests;"
   },
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
   "license": "MIT"

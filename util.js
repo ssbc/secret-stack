@@ -28,7 +28,7 @@ var clone = exports.clone = function clone (obj, mapper) {
 exports.parseAddress = function (e) {
   if(isString(e)) {
     var parts = e.split(':')
-    var e = {
+    e = {
       host: parts[0],
       port: +parts[1],
       key: fromId(parts[2])

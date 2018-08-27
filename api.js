@@ -33,8 +33,10 @@ function merge (a, b, mapper) {
 
 function find(ary, test) {
   var v
-  for(var i = 0; i < ary.length; i++)
-    if(v = test(ary[i], i, ary)) return v
+  for(var i = 0; i < ary.length; i++) {
+    v = test(ary[i], i, ary)
+    if (v) return v
+  }
   return v
 }
 
