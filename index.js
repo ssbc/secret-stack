@@ -78,23 +78,20 @@ module.exports = function (opts) {
     },
     init: function (api, opts, permissions, manifest) {
 
-      //legacy, but needed to pass tests.
-      opts.appKey = opts.appKey || _opts.appKey
+      // defaults
+      opts.appKey = opts.appKey || appKey
 
       //XXX: LEGACY CRUFT - TIMEOUTS
-      var defaultTimeout = (
-        opts.defaultTimeout || 5e3 // 5 seconds.
-      )
+      var defaultTimeout = opts.defaultTimeout || 5e3 // 5 seconds.
       var timeout_inactivity
 
       if(opts.timers && !isNaN(opts.timers.inactivity))
         timeout_inactivity = opts.timers.inactivity
 
-      //if opts.timers are set, pick a longer default
-      //but if not, set a short default (as needed in the tests)
+      // if opts.timers are set, pick a longer default
+      // but if not, set a short default (as needed in the tests)
       timeout_inactivity = timeout_inactivity || (opts.timers ? 600e3 : 5e3)
 
-      // needed for tests
       if (!opts.connections)
         opts.connections = {
           incoming: {
