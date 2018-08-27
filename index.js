@@ -209,7 +209,7 @@ module.exports = function (opts) {
             transports.push(transport); return this
           },
           transform: function (transform) { transforms.push(transform); return this },
-          parse: function (str) { // FIXME: server / client? or try both?
+          parse: function (str) {
             return ms.parse(str)
           }
         },
