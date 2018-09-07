@@ -76,13 +76,11 @@ module.exports = function (plugins, defaults) {
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
-    if(isString(plug.name))
-      if(find(create.plugins, function (_plug) {
-        return _plug.name === plug.name
-      }))
+    var name = plug.name
+
+    if(isString(name) && create.plugins.indexOf(name) !== -1)
         throw new Error('plugin named:'+plug.name+' is already loaded')
 
-    var name = plug.name
     if(plug.manifest)
       create.manifest =
         u.merge.manifest(create.manifest, plug.manifest, toCamelCase(name))
