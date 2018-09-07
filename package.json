@@ -11,7 +11,6 @@
     "debug": "^4.1.0",
     "hoox": "0.0.1",
     "ip": "^1.1.5",
-    "jshint": "^2.9.6",
     "map-merge": "^1.1.0",
     "multiserver": "^3.1.0",
     "muxrpc": "^6.4.0",
@@ -23,6 +22,7 @@
     "to-camel-case": "^1.0.0"
   },
   "devDependencies": {
+    "jshint": "^2.9.6",
     "pull-pushable": "^2.0.1",
     "tape": "^4.0.0"
   },
