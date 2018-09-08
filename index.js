@@ -152,10 +152,14 @@ module.exports = function (opts) {
 
         ms = MultiServer(server_suites)
         server = ms.server(setupRPC)
+        if(!server) throw new Error('expected server')
         return server
       }
 
-      setImmediate(setupMultiserver)
+      if(/^v6\./.test(process.version))
+        process.nextTick(setupMultiserver)
+      else
+        setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth === true ? create.permissions.anonymous : stream.auth)
@@ -216,10 +220,13 @@ module.exports = function (opts) {
         close: function (err, cb) {
           if(isFunction(err)) cb = err, err = null
           api.closed = true
-          ;(server.close || server)(function (err) {
-            api.emit('close', err)
-            cb && cb(err)
-          })
+          if(!server) cb && cb()
+          else {
+            ;(server.close || server)(function (err) {
+              api.emit('close', err)
+              cb && cb(err)
+            })
+          }
 
           if(err) {
             each(peers, function (connections, id) {
