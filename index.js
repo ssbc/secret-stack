@@ -113,6 +113,7 @@ module.exports = function (opts) {
       var server, ms, ms_client
 
       function setupMultiserver () {
+        if(api.closed) return
         if(server) return server
         if(transforms.length < 1)
           throw new Error('secret-stack needs at least 1 transform protocol')
@@ -156,10 +157,7 @@ module.exports = function (opts) {
         return server
       }
 
-      if(/^v6\./.test(process.version))
-        process.nextTick(setupMultiserver)
-      else
-        setImmediate(setupMultiserver)
+      setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
         var rpc = Muxrpc(create.manifest, manf || create.manifest)(api, stream.auth === true ? create.permissions.anonymous : stream.auth)
@@ -243,3 +241,4 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
+
