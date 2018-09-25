@@ -76,9 +76,7 @@ module.exports = function (plugins, defaults) {
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
-    var name = plug.name
-
-    if(isString(name) && create.plugins.indexOf(name) !== -1)
+    if (create.plugins.some(function(plugin) { return plugin.name === plug.name }))
         throw new Error('plugin named:'+plug.name+' is already loaded')
 
     if(plug.manifest)
