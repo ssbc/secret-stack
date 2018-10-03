@@ -209,10 +209,15 @@ module.exports = function (opts) {
         multiserver: {
           transport: function (transport) {
             if(server) throw new Error('cannot add protocol after server initialized')
-            if(!isObject(transport) && isString(transport.name) && isFunction(transport.create)) throw new Error('transport must be {name: string, create: function}') 
+            if(!isObject(transport) && isString(transport.name) && isFunction(transport.create))
+              throw new Error('transport must be {name: string, create: function}') 
             transports.push(transport); return this
           },
-          transform: function (transform) { transforms.push(transform); return this },
+          transform: function (transform) {
+            if(!isObject(transform) && isString(transform.name) && isFunction(transform.create))
+              throw new Error('transform must be {name: string, create: function}') 
+            transforms.push(transform); return this
+          },
           parse: function (str) {
             return ms.parse(str)
           }
