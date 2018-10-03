@@ -125,11 +125,12 @@ module.exports = function (opts) {
           opts.connections.incoming[incTransportType].forEach(function (conf) {
             transforms.forEach(function (transform) {
               transports.forEach(function (transport) {
-                if (transport.name == incTransportType && transform.name == conf.transform)
+                if (transport.name == incTransportType && transform.name == conf.transform) {
                   server_suites.push([
                     transport.create(conf),
                     transform.create()
                   ])
+                }
               })
             })
           })
@@ -208,6 +209,7 @@ module.exports = function (opts) {
         multiserver: {
           transport: function (transport) {
             if(server) throw new Error('cannot add protocol after server initialized')
+            if(!isObject(transport) && isString(transport.name) && isFunction(transport.create)) throw new Error('transport must be {name: string, create: function}') 
             transports.push(transport); return this
           },
           transform: function (transform) { transforms.push(transform); return this },
@@ -241,4 +243,5 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
+
 
