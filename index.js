@@ -95,7 +95,7 @@ module.exports = function (opts) {
       if (!opts.connections)
         opts.connections = {
           incoming: {
-            net: [{ scope: "public", "transform": "shs" }]
+            net: [{ scope: "public", "transform": "shs", port: opts.port, host: opts.host }]
           },
           outgoing: {
             net: [{ transform: "shs" }]
