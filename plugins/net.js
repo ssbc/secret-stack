@@ -1,5 +1,6 @@
 var Net = require('multiserver/plugins/net')
 var nonPrivate = require('non-private-ip')
+var debug = require('debug')('secret-stack net plugin')
 
 exports.name = 'multiserver-net'
 exports.version = '1.0.0'
@@ -8,11 +9,10 @@ exports.mainfest = {}
 exports.init = function (ssk, config) {
   ssk.multiserver.transport({
     name: 'net',
-    create: function (netConfig) {
-      var port = netConfig.port || 1024+(~~(Math.random()*(65536-1024)))
-      var host = netConfig.host || nonPrivate.v4 || nonPrivate.private.v4 || '127.0.0.1'
-
-      return Net({host: host, port: port, scope: netConfig.scope, external: netConfig.external})
+    create: function (opts) {
+      debug('creating transport host=%s port=%d scope=%s', opts.host, opts.port, opts.scope)
+      // let multiserver figure out the defaults
+      return Net(opts)
     }
   })
 }
