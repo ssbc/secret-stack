@@ -8,6 +8,8 @@ var Rate       = require('pull-rate')
 var MultiServer = require('multiserver')
 var Inactive   = require('pull-inactivity')
 
+var debug = require('debug')('secret-stack')
+
 function isFunction (f) { return 'function' === typeof f }
 function isString (s) { return 'string' === typeof s }
 function isObject (o) { return o && 'object' === typeof o && !Array.isArray(o) }
@@ -92,7 +94,7 @@ module.exports = function (opts) {
       // but if not, set a short default (as needed in the tests)
       timeout_inactivity = timeout_inactivity || (opts.timers ? 600e3 : 5e3)
 
-      if (!opts.connections)
+      if (!opts.connections) {
         opts.connections = {
           incoming: {
             net: [{ scope: "public", "transform": "shs", port: opts.port, host: opts.host }]
@@ -101,7 +103,7 @@ module.exports = function (opts) {
             net: [{ transform: "shs" }]
           }
         }
-
+      }
       var peers = api.peers = {}
 
       var transports = []
@@ -126,6 +128,7 @@ module.exports = function (opts) {
             transforms.forEach(function (transform) {
               transports.forEach(function (transport) {
                 if (transport.name == incTransportType && transform.name == conf.transform) {
+                  debug('creating server %s %s host=%s port=%d scope=%s', incTransportType, transform.name, conf.host, conf.port, conf.scope || 'undefined')
                   server_suites.push([
                     transport.create(conf),
                     transform.create()
@@ -211,11 +214,13 @@ module.exports = function (opts) {
             if(server) throw new Error('cannot add protocol after server initialized')
             if(!isObject(transport) && isString(transport.name) && isFunction(transport.create))
               throw new Error('transport must be {name: string, create: function}') 
+            debug('Adding transport %s', transport.name)
             transports.push(transport); return this
           },
           transform: function (transform) {
             if(!isObject(transform) && isString(transform.name) && isFunction(transform.create))
               throw new Error('transform must be {name: string, create: function}') 
+            debug('Adding transform %s', transform.name)
             transforms.push(transform); return this
           },
           parse: function (str) {
