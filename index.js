@@ -126,6 +126,9 @@ module.exports = function (opts) {
             transforms.forEach(function (transform) {
               transports.forEach(function (transport) {
                 if (transport.name == incTransportType && transform.name == conf.transform) {
+                  var trans = transport.create(conf)
+                  if(trans.scope() !== conf.scope)
+                    throw new Error('transport:'+transport.name +' did not remember scope, expected:' + conf.scope + ' got:'+trans.scope())
                   server_suites.push([
                     transport.create(conf),
                     transform.create()
@@ -190,7 +193,7 @@ module.exports = function (opts) {
         },
         getAddress: function (scope) {
           setupMultiserver()
-          return ms.stringify(scope)
+          return ms.stringify(scope) || null
         },
         manifest: function () {
           return create.manifest
@@ -248,5 +251,4 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
-
 
