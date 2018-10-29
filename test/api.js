@@ -72,6 +72,38 @@ tape('named plugin', function (t) {
 })
 
 
+tape('camel-case plugin', function (t) {
+
+  //core, not a plugin.
+  var Create = Api([{
+    manifest: {},
+    init: function (api) {
+      return {}
+    }
+  }])
+
+  console.log(Create)
+
+  Create.use({
+    name: 'foo-bar',
+    manifest: {
+      goodbye: 'async'
+    },
+    init: function () {
+      return {goodbye: function (n, cb) { cb(null, n) }}
+    }
+  })
+
+  t.deepEqual(Create.manifest, {
+    fooBar: {
+      goodbye: 'async'
+    }
+  })
+
+  t.end()
+})
+
+
 tape('optional cb hook for sync api methods', function (t) {
 
   //core, not a plugin.
@@ -134,3 +166,4 @@ tape('optional cb hook for sync api methods', function (t) {
     })
   })
 })
+
