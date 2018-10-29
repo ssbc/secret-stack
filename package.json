@@ -8,6 +8,7 @@
     "url": "git://github.com/ssbc/secret-stack.git"
   },
   "dependencies": {
+    "debug": "^4.1.0",
     "hoox": "0.0.1",
     "ip": "^1.1.5",
     "map-merge": "^1.1.0",

@@ -95,12 +95,20 @@ module.exports = function (opts) {
       timeout_inactivity = timeout_inactivity || (opts.timers ? 600e3 : 5e3)
 
       if (!opts.connections) {
+        var net_in = { "transform": "shs"}
+        var net_out = { "transform": "shs"}
+        // avoid setting properties to value `undefined`
+        if (opts.host) net_in.host = opts.host
+        if (opts.port) {
+          net_in.port = opts.port
+          net_out.port = opts.port
+        }
         opts.connections = {
           incoming: {
-            net: [{ scope: "public", "transform": "shs", port: opts.port, host: opts.host }]
+            net: [net_in]
           },
           outgoing: {
-            net: [{ transform: "shs" }]
+            net: [net_out]
           }
         }
       }
