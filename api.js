@@ -1,6 +1,11 @@
 var EventEmitter = require('events')
 var u            = require('./util')
 var Hookable     = require('hoox')
+var camelize     = require('to-camel-case')
+
+function toCamelCase (n) {
+  return n ? camelize(n) : n
+}
 
 function isFunction (f) {
   return 'function' === typeof f
@@ -37,7 +42,7 @@ module.exports = function (plugins) {
     create.plugins.forEach(function (plug) {
       var _api = plug.init.call({createClient: create.createClient}, api, opts)
       if(plug.name) {
-        var o = {}; o[plug.name] = _api; _api = o
+        var o = {}; o[toCamelCase(plug.name)] = _api; _api = o
       }
       api = merge(api, _api, function (v, k) {
         if ('function' === typeof v) {
@@ -73,10 +78,10 @@ module.exports = function (plugins) {
     var name = plug.name
     if(plug.manifest)
       create.manifest =
-        u.merge.manifest(create.manifest, plug.manifest, name)
+        u.merge.manifest(create.manifest, plug.manifest, toCamelCase(name))
     if(plug.permissions)
       create.permissions =
-        u.merge.permissions(create.permissions, plug.permissions, name)
+        u.merge.permissions(create.permissions, plug.permissions, toCamelCase(name))
     create.plugins.push(plug)
 
     return create
