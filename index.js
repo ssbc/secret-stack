@@ -75,6 +75,12 @@ module.exports = function (opts) {
       auth: 'async',
       address: 'sync',
       manifest: 'sync',
+      close: 'sync',
+      multiserver: {
+        scopes: 'sync',
+        parse: 'sync',
+        address: 'sync'
+      }
     },
     init: function (api, opts, permissions, manifest) {
 
@@ -223,6 +229,13 @@ module.exports = function (opts) {
           },
           parse: function (str) {
             return ms.parse(str)
+          },
+          scopes: function () {
+            return ms.scopes()
+          },
+          address: function (scope) {
+            setupMultiserver()
+            return ms.stringify(scope) || null
           }
         },
         close: function (err, cb) {
@@ -251,4 +264,5 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
+
 
