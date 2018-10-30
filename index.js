@@ -75,7 +75,6 @@ module.exports = function (opts) {
       auth: 'async',
       address: 'sync',
       manifest: 'sync',
-      close: 'sync',
       multiserver: {
         scopes: 'sync',
         parse: 'sync',
@@ -264,5 +263,6 @@ module.exports = function (opts) {
   .use(require('./plugins/net'))
   .use(require('./plugins/shs'))
 }
+
 
 
