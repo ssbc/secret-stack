@@ -135,7 +135,7 @@ module.exports = function (opts) {
                   if(trans.scope() !== conf.scope)
                     throw new Error('transport:'+transport.name +' did not remember scope, expected:' + conf.scope + ' got:'+trans.scope())
                   server_suites.push([
-                    transport.create(conf),
+                    trans,
                     transform.create()
                   ])
                 }
