@@ -4,7 +4,7 @@ var debug = require('debug')('secret-stack net plugin')
 
 exports.name = 'multiserver-net'
 exports.version = '1.0.0'
-exports.mainfest = {}
+exports.manifest = {}
 
 exports.init = function (ssk, config) {
   ssk.multiserver.transport({
