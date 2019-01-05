@@ -59,7 +59,7 @@ function msLogger (stream) {
 
 
 //opts must have appKey
-module.exports = function (opts) {
+module.exports = function (opts, startedCb) {
   //this weird thing were some config is loaded first, then the rest later... not necessary.
   var _opts = opts
   var appKey = (opts && opts.caps && opts.caps.shs || opts.appKey)
@@ -170,7 +170,7 @@ module.exports = function (opts) {
         ms_client = MultiServer(client_suites)
 
         ms = MultiServer(server_suites)
-        server = ms.server(setupRPC)
+        server = ms.server(setupRPC, null, startedCb)
         if(!server) throw new Error('expected server')
         return server
       }
