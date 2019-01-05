@@ -12,7 +12,7 @@
     "hoox": "0.0.1",
     "ip": "^1.1.5",
     "map-merge": "^1.1.0",
-    "multiserver": "happy0/multiserver#d9ce720d1eb7c6115b7890c86a26b862f7b2a5e9",
+    "multiserver": "happy0/multiserver#22b5ff36a95062de58e22781788bae5039dbf2f0",
     "muxrpc": "^6.4.0",
     "non-private-ip": "^1.4.3",
     "pull-inactivity": "~2.1.1",
