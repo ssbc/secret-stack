@@ -23,7 +23,7 @@ function merge (a, b, mapper) {
   mapper = mapper || id
 
   for(var k in b) {
-    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]))
+    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]) && !Array.isArray(b[k]))
       merge(a[k] = {}, b[k], mapper)
     else
       a[k] = mapper(b[k], k)
