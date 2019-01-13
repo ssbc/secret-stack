@@ -197,7 +197,7 @@ module.exports = {
           return ms.stringify(scope) || null
         },
         manifest: function () {
-          return create.manifest
+          return manifest
         },
         getManifest: function () {
           return this.manifest()
