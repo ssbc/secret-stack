@@ -2,6 +2,7 @@ var EventEmitter = require('events')
 var u            = require('./util')
 var Hookable     = require('hoox')
 var camelize     = require('to-camel-case')
+var deepMerge        = require('deep-merge')(function (a, b) { return b })
 
 function toCamelCase (n) {
   return n ? camelize(n) : n
@@ -15,10 +16,14 @@ function isString (s) {
   return s && 'string' === typeof s
 }
 
+function id (e) { return e }
+
 function merge (a, b, mapper) {
 
+  mapper = mapper || id
+
   for(var k in b) {
-    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]))
+    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]) && !Array.isArray(b[k]))
       merge(a[k] = {}, b[k], mapper)
     else
       a[k] = mapper(b[k], k)
@@ -34,13 +39,17 @@ function find(ary, test) {
   return v
 }
 
-module.exports = function (plugins) {
+module.exports = function (plugins, defaults) {
 
   function create (opts) {
+    console.log("DEFAUELTS", defaults)
+    console.log("CONFIG", opts)
+    opts = merge(merge({}, defaults), opts)
+    console.log("RESULT", opts)
     //change event emitter to something with more rigorous security?
     var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
-      var _api = plug.init.call({createClient: create.createClient}, api, opts)
+      var _api = plug.init.call({createClient: create.createClient}, api, opts, create.permissions, create.manifest)
       if(plug.name) {
         var o = {}; o[toCamelCase(plug.name)] = _api; _api = o
       }
@@ -91,4 +100,6 @@ module.exports = function (plugins) {
 
   return create
 }
+
+
 
