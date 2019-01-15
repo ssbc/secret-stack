@@ -70,6 +70,7 @@ module.exports = function (plugins, defaults) {
     if (create.plugins.some(function(plugin) { return plugin.name === plug.name }))
         throw new Error('plugin named:'+plug.name+' is already loaded')
 
+    var name = plug.name
     if(plug.manifest)
       create.manifest =
         u.merge.manifest(create.manifest, plug.manifest, toCamelCase(name))
