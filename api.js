@@ -31,15 +31,6 @@ function merge (a, b, mapper) {
   return a
 }
 
-function find(ary, test) {
-  var v
-  for(var i = 0; i < ary.length; i++) {
-    v = test(ary[i], i, ary)
-    if (v) return v
-  }
-  return v
-}
-
 module.exports = function (plugins, defaults) {
 
   function create (opts) {

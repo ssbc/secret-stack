@@ -119,11 +119,11 @@ module.exports = {
         var server_suites = []
         var client_suites = []
 
-        for (var incTransportType in opts.connections.incoming) {
+        Object.keys(opts.connections.outgoing).forEach(function(outTransportType) {
           opts.connections.incoming[incTransportType].forEach(function (conf) {
             transforms.forEach(function (transform) {
               transports.forEach(function (transport) {
-                if (transport.name == incTransportType && transform.name == conf.transform) {
+                if (transport.name === incTransportType && transform.name === conf.transform) {
                   var trans = transport.create(conf)
                   if(trans.scope() !== conf.scope)
                     throw new Error('transport:'+transport.name +' did not remember scope, expected:' + conf.scope + ' got:'+trans.scope())
@@ -136,13 +136,13 @@ module.exports = {
               })
             })
           })
-        }
+        })
 
-        for (var outTransportType in opts.connections.outgoing) {
+        Object.keys(opts.connections.outgoing).forEach(function(outTransportType) {
           opts.connections.outgoing[outTransportType].forEach(function (conf) {
             transforms.forEach(function (transform) {
               transports.forEach(function (transport) {
-                if (transport.name == outTransportType && transform.name == conf.transform)
+                if (transport.name === outTransportType && transform.name === conf.transform)
                   client_suites.push([
                     transport.create(conf),
                     transform.create()
@@ -150,7 +150,7 @@ module.exports = {
               })
             })
           })
-        }
+        })
 
         ms_client = MultiServer(client_suites)
 
@@ -214,13 +214,13 @@ module.exports = {
           transport: function (transport) {
             if(server) throw new Error('cannot add protocol after server initialized')
             if(!isObject(transport) && isString(transport.name) && isFunction(transport.create))
-              throw new Error('transport must be {name: string, create: function}') 
+              throw new Error('transport must be {name: string, create: function}')
             debug('Adding transport %s', transport.name)
             transports.push(transport); return this
           },
           transform: function (transform) {
             if(!isObject(transform) && isString(transform.name) && isFunction(transform.create))
-              throw new Error('transform must be {name: string, create: function}') 
+              throw new Error('transform must be {name: string, create: function}')
             debug('Adding transform %s', transform.name)
             transforms.push(transform); return this
           },
@@ -233,13 +233,16 @@ module.exports = {
           }
         },
         close: function (err, cb) {
-          if(isFunction(err)) cb = err, err = null
+          if (isFunction(err)) {
+            cb = err
+            err = null
+          }
           api.closed = true
-          if(!server) cb && cb()
+          if (!server && cb) cb()
           else {
             ;(server.close || server)(function (err) {
               api.emit('close', err)
-              cb && cb(err)
+              if (cb) cb(err)
             })
           }
 
