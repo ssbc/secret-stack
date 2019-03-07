@@ -52,15 +52,15 @@ create.use({
 })
 
 var alice = create({
-  seed: seeds.alice, appKey: appkey1
+  seed: seeds.alice, caps: {shs: appkey1}
 })
 
 var bob = create({
-  seed: seeds.bob, appKey: appkey1
+  seed: seeds.bob, caps: { shs: appkey1}
 })
 
 var carol = create({
-  seed: seeds.carol, appKey: appkey1
+  seed: seeds.carol, caps: {shs: appkey1}
 })
 
 tape('alice *can* use alice_only api', function (t) {
@@ -118,8 +118,5 @@ tape('cleanup', function (t) {
   carol.close(true)
   t.end()
 })
-
-
-
 
 
