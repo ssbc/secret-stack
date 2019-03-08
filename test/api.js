@@ -103,6 +103,56 @@ tape('camel-case plugin', function (t) {
   t.end()
 })
 
+tape('compound (array) plugins', function (t) {
+
+  //core, not a plugin.
+  var Create = Api([{
+    manifest: {
+      hello: 'sync'
+    },
+    init: function (api) {
+      return {
+        hello: function (name) {
+          return 'Hello, ' + name + '.'
+        }
+      }
+    }
+  }])
+
+  console.log(Create)
+
+  Create.use([
+    {
+      name: 'foo',
+      manifest: {
+        goodbye: 'async'
+      },
+      init: function () {
+        return {goodbye: function (n, cb) { cb(null, n) }}
+      }
+    }, {
+      name: 'bar',
+      manifest: {
+        farewell: 'async'
+      },
+      init: function () {
+        return {farewell: function (n, cb) { cb(null, n) }}
+      }
+    }
+  ])
+
+  t.deepEqual(Create.manifest, {
+    hello: 'sync',
+    foo: {
+      goodbye: 'async'
+    },
+    bar: {
+      farewell: 'async'
+    }
+  })
+
+  t.end()
+})
 
 tape('optional cb hook for sync api methods', function (t) {
 
@@ -129,7 +179,7 @@ tape('optional cb hook for sync api methods', function (t) {
     },
     init: function () {
       return {
-        goodbye: function (n) { 
+        goodbye: function (n) {
           if (n === 0)
             throw "bad input!"
           return n
@@ -152,11 +202,11 @@ tape('optional cb hook for sync api methods', function (t) {
 
   // async usages
   api.hello('Foo', function (err, res) {
-    if (err) throw err      
+    if (err) throw err
     t.equal(res, 'Hello, Foo.')
 
     api.foo.goodbye(5, function (err, res) {
-      if (err) throw err      
+      if (err) throw err
       t.equal(res, 5)
 
       api.foo.goodbye(0, function (err) {

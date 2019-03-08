@@ -53,7 +53,7 @@ will not be able to connect to instances of your app.
 
 ### create.use(plugin)
 
-set up the factory by adding plugins. see the example above.
+set up the factory by adding plugins. the `plugin` argument can either be an init function, an object like in the example above, or an array of the aforementioned types.
 
 ### plugin.init (api, opts)
 
