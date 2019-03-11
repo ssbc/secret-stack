@@ -77,10 +77,28 @@ tape('carol *cannot* use alice_only api', function (t) {
     if(err) throw err
     rpc.aliceOnly(function (err, data) {
       t.ok(err)
-      t.end()
+      rpc.close(function () {
+        t.end()
+      })
     })
   })
 })
+
+tape('bob calls back to a client connection', function (t) {
+  bob.on('rpc:connect', function (rpc) {
+    rpc.hello(function (err, data) {
+      t.notOk(err)
+      t.ok(data)
+      rpc.aliceOnly(function (err, data) {
+        t.ok(err)
+        t.end()
+      })
+    })
+  })
+  carol.connect(bob.address(), function (err, rpc) {
+  })
+})
+
 
 tape('cleanup', function (t) {
   alice.close(true)
@@ -88,5 +106,4 @@ tape('cleanup', function (t) {
   carol.close(true)
   t.end()
 })
-
 
