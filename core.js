@@ -11,6 +11,7 @@ var debug = require('debug')('secret-stack')
 function isFunction (f) { return 'function' === typeof f }
 function isString (s) { return 'string' === typeof s }
 function isObject (o) { return o && 'object' === typeof o && !Array.isArray(o) }
+var isArray = Array.isArray
 
 function toBase64 (s) {
   if(isString(s)) return s
@@ -56,6 +57,14 @@ function msLogger (stream) {
 }
 
 
+function isPermsList(list) {
+  return (null == list) || ( isArray(list) && list.every(isString) )
+}
+
+function isPermissions (perms) {
+  //allow: null means enable everything.
+  return perms && isObject(perms) && isPermsList(perms.allow) && isPermsList(perms.deny)
+}
 
 module.exports = {
     manifest: {
@@ -165,7 +174,7 @@ module.exports = {
       setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
-        var rpc = Muxrpc(manifest, manf || manifest)(api, stream.auth === true ? permissions.anonymous : stream.auth)
+        var rpc = Muxrpc(manifest, manf || manifest)(api, isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous)
         var rpcStream = rpc.createStream()
         rpc.id = '@'+u.toId(stream.remote)
         if(timeout_inactivity > 0 && api.id !== rpc.id) rpcStream = Inactive(rpcStream, timeout_inactivity)
