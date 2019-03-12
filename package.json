@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "pull-pushable": "^2.0.1",
+    "ssb-keys": "^7.1.5",
     "tape": "^4.0.0"
   },
   "scripts": {
