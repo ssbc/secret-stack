@@ -174,11 +174,10 @@ module.exports = {
       setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
-//        var rpc = Muxrpc(manifest, manf || manifest)(api, isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous)
-        var rpc = Muxrpc(manifest, manf || manifest, api, '@'+u.toId(stream.remote), isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous, false)
-          var rpcStream = rpc.stream
-  //      var rpcStream = rpc.createStream()
-    //    rpc.id = '@'+u.toId(stream.remote)
+        var _id = '@'+u.toId(stream.remote)
+        var rpc = Muxrpc(manifest, manf || manifest, api, _id, isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous, false)
+        rpc.id = _id
+        var rpcStream = rpc.stream
         if(timeout_inactivity > 0 && api.id !== rpc.id) rpcStream = Inactive(rpcStream, timeout_inactivity)
         rpc.meta = stream.meta
 
@@ -265,5 +264,9 @@ module.exports = {
       }
     }
   }
+
+
+
+
 
 
