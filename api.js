@@ -71,6 +71,9 @@ module.exports = function (plugins, defaults) {
     if(isFunction(plug))
       return create.plugins.push({init: plug}), create
 
+    if(Array.isArray(plug))
+      return plug.forEach(create.use), create
+
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
