@@ -55,6 +55,8 @@ will not be able to connect to instances of your app.
 
 set up the factory by adding plugins. the `plugin` argument can either be an init function, an object like in the example above, or an array of the aforementioned types.
 
+see [plugins.md](plugins.md) for more details.
+
 ### plugin.init (api, opts)
 
 each plugin init function is called in the order they where
