@@ -1,5 +1,6 @@
-var isArray = Array.isArray
-var merge   = require('map-merge')
+var isArray  = Array.isArray
+var merge    = require('map-merge')
+var camelize = require('to-camel-case')
 
 function isObject (o) {
   return o && 'object' === typeof o
@@ -53,7 +54,6 @@ exports.merge = {
         return name ? name + '.' + v : v
       })
     )
-
   },
   manifest: function (manf, _manf, name) {
     if(name) {
@@ -80,4 +80,16 @@ exports.hookOptionalCB = function (syncFn) {
       return fn.apply(this, args)
     }
   })
+}
+
+exports.toCamelCase = function toCamelCase (n) {
+  return n ? camelize(n) : n
+}
+
+exports.isFunction = function isFunction (f) {
+  return 'function' === typeof f
+}
+
+exports.isString = function isString (s) {
+  return s && 'string' === typeof s
 }
