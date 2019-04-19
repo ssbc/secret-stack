@@ -30,8 +30,7 @@ module.exports = function (plugins, defaultConfig) {
     //change event emitter to something with more rigorous security?
     var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
-      // mix: uhhh where is create.createClient defined?
-      var _api = plug.init.call({createClient: create.createClient}, api, opts, create.permissions, create.manifest)
+      var _api = plug.init.call({}, api, opts, create.permissions, create.manifest)
       if(plug.name) {
         var o = {}; o[u.toCamelCase(plug.name)] = _api; _api = o
       }
@@ -85,3 +84,4 @@ module.exports = function (plugins, defaultConfig) {
 
   return create
 }
+
