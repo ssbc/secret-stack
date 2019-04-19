@@ -1,24 +1,10 @@
 var EventEmitter = require('events')
 var u            = require('./util')
 var Hookable     = require('hoox')
-var camelize     = require('to-camel-case')
-
-function toCamelCase (n) {
-  return n ? camelize(n) : n
-}
-
-function isFunction (f) {
-  return 'function' === typeof f
-}
-
-function isString (s) {
-  return s && 'string' === typeof s
-}
 
 function id (e) { return e }
 
 function merge (a, b, mapper) {
-
   mapper = mapper || id
 
   for(var k in b) {
@@ -38,16 +24,16 @@ function find(ary, test) {
   return v
 }
 
-module.exports = function (plugins, defaults) {
-
+module.exports = function (plugins, defaultConfig) {
   function create (opts) {
-    opts = merge(merge({}, defaults), opts)
+    opts = merge(merge({}, defaultConfig), opts)
     //change event emitter to something with more rigorous security?
     var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
+      // mix: uhhh where is create.createClient defined?
       var _api = plug.init.call({createClient: create.createClient}, api, opts, create.permissions, create.manifest)
       if(plug.name) {
-        var o = {}; o[toCamelCase(plug.name)] = _api; _api = o
+        var o = {}; o[u.toCamelCase(plug.name)] = _api; _api = o
       }
       api = merge(api, _api, function (v, k) {
         if ('function' === typeof v) {
@@ -68,7 +54,7 @@ module.exports = function (plugins, defaults) {
   create.permissions = {}
 
   create.use = function (plug) {
-    if(isFunction(plug))
+    if(u.isFunction(plug))
       return create.plugins.push({init: plug}), create
 
     if(Array.isArray(plug))
@@ -77,7 +63,7 @@ module.exports = function (plugins, defaults) {
     if(!plug.init)
       throw new Error('plugins *must* have "init" method')
 
-    if(isString(plug.name))
+    if(u.isString(plug.name))
       if(find(create.plugins, function (_plug) {
         return _plug.name === plug.name
       }))
@@ -86,10 +72,10 @@ module.exports = function (plugins, defaults) {
     var name = plug.name
     if(plug.manifest)
       create.manifest =
-        u.merge.manifest(create.manifest, plug.manifest, toCamelCase(name))
+        u.merge.manifest(create.manifest, plug.manifest, u.toCamelCase(name))
     if(plug.permissions)
       create.permissions =
-        u.merge.permissions(create.permissions, plug.permissions, toCamelCase(name))
+        u.merge.permissions(create.permissions, plug.permissions, u.toCamelCase(name))
     create.plugins.push(plug)
 
     return create
@@ -99,4 +85,3 @@ module.exports = function (plugins, defaults) {
 
   return create
 }
-

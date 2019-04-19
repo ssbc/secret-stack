@@ -11,97 +11,67 @@ to make building secure, decentralized systems easier.
 
 ``` js
 var SecretStack = require('secret-stack')
+var databasePlugin = require('./some-database')
+var bluetoothPlugin = require('./bluetooth')
+var config = require('./some-config')
 
-var createApp = SecretStack({
-  appKey: appKey //32 random bytes
-})
-.use({
-  //plugin
-  //name of the plugin, this is where it will be "mounted"
-  name: 'foo',
-  //muxrpc manifest
-  manifest: {
-     bar: 'async'
-  },
-  //permissions will be merged into the main permissions,
-  //prefixed with the plugin name.
-  //so theirfore this becomes 'foo.bar'.
-  permissions: {
-    anonymous: [
-      'bar'
-    ]
-  },
-  init: function (api, opts) {
-    //set up and return some methods...
-    return {
-      bar: function (arg, cb) {
-        //do something async
-        cb(null, result)
-      }
-    }
-  }
-})
+var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
+  .use(databasePlugin)
+  .use(bluetoothPlugin)
+
+vap app = App(config)
 ```
 
-## create = SecretStack(opts)
+For documentation on plugins, see [PLUGINS.md](./PLUGINS.md) 
 
-initialize a new app factory.
-opts must have a property `appKey` which should
-be a high entropy (i.e. random) 32 byte value.
-It is fixed for your app. Actors who do not know this value
-will not be able to connect to instances of your app.
 
-### create.use(plugin)
+## API
 
-set up the factory by adding plugins. the `plugin` argument can either be an init function, an object like in the example above, or an array of the aforementioned types.
+### `SecretStack(opts) => App`
 
-see [plugins.md](plugins.md) for more details.
+Initialize a new app factory.
 
-### plugin.init (api, opts)
+`opts` is an Object with properties:
+- `appKey` - _String, 32 bytes_ a high entropy (i.e. random) key which is fixed for your app. Actors who do not know this value will not be able to connect to instances of your app.
+- `permissions` - _Object_ (optional), you can set default permissions which will be the foundation for all permissions subsequently added
 
-each plugin init function is called in the order they where
-added and it may return an object which is combined into the api.
-if `plugin.name` is a string, then it's added as `api[plugin.name]=plugin.init(api, opts)`
-else, it's merged with the api object.
+NOTE - you can also add other properties to opts. These will be merged with `config` later to form the final config passed to each plugin. (i.e. `merge(opts, config)`)
 
-Note, each method on the api gets wrapped with [hoox](https://github.com/dominictarr/hoox)
-so that plugins may intercept that function.
-So far, the ways i have used this is to manage permissions,
-for example, to extend the auth method (see below) or to filter
-the output of a stream.
 
-### connect = create.createClient(opts)
+### `App.use(plugin) => App`
 
-sometimes you need to create a connection using a different key pair,
-and/or to connect without providing access for the remote to your local api.
-`opts` must have a sodium ed25519 key pair, or a `seed` (32 byte random)
-value, from which a private key will be generated.
+Add a plugin to the factory. See [PLUGINS.md](PLUGINS.md) for more details.
 
-`connect` then takes the same arguments as `node.connect`
+Returns the App (with plugin now installed)
 
-### node = create (opts)
+### `App(config) => app`
 
-create an actual instance! opts must have a `keys` property
-which is a sodium ed25519 key pair.
+Start the app and returns an EventEmitter with methods (core and plugin) attached.
 
-### node.getAddress()
+`config` is an (optional) Object with any properties:
+- `keys` - _String_ a sodium ed25519 key pair
+- ... - (optional)
+
+`config` will be passed to each plugin as they're initialised (as `merge(opts, config)` which opts were those options `SecretStack` factory was initialised with).
+
+### app.getAddress()
 
 get a string representing the address of this node.
 it will be `ip:port:<base64:pubkey>`.
 
-### node.connect(address, cb)
+### app.connect(address, cb)
 
 create a rpc connection to another instance.
 Address should be the form returned by `getAddress`
 
-### node.auth(publicKey, cb)
+### app.auth(publicKey, cb)
 
 Query what permissions a given public key is assigned.
 it's not intended for this to be exposed over the network,
 but rather to extend this method to create plugable permissions systems.
 
 ``` js
-node.auth.hook(function (auth, args) {
+app.auth.hook(function (auth, args) {
   var pub = args[0]
   var cb = args[1]
   //call the first auth fn, and then hook the callback.
@@ -121,6 +91,34 @@ node.auth.hook(function (auth, args) {
   })
 })
 ```
+
+### `app.close()`
+
+close the app!
+
+Optionally takes `(err, callback)`
+
+----
+
+## TODO document
+
+> mix: I think some of these are exposed over muxrpc (as they're in the manifest) 
+and some can only be run locally if you have access to the instance of `app` you 
+got returned after initialising it.
+
+### `app.id => String`  (alias `publicKey`)
+
+### `app.getManifest() => Object` (alias: `manifest`)
+
+
+### `auth: 'async'`
+### `address: 'sync'`
+### `config => Object'`
+### `multiserver.parse: 'sync',`
+### `multiserver.address: 'sync'`
+### `multiserver.transport: 'sync'`
+### `multiserver.transform: 'sync'`
+
 
 ## License
 
