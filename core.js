@@ -174,6 +174,11 @@ module.exports = {
       setImmediate(setupMultiserver)
 
       function setupRPC (stream, manf, isClient) {
+        //idea: make muxrpc part of the multiserver stream so that we can upgrade it.
+        //      we'd need to fallback to using default muxrpc on ordinary connections.
+        //      but maybe the best way to represent that would be to coearse addresses to
+        //      include ~mux1 at the end if they didn't specify a muxrpc version.
+
         var _id = '@'+u.toId(stream.remote)
         var rpc = Muxrpc(manifest, manf || manifest, api, _id, isClient ? permissions.anonymous : isPermissions(stream.auth) ? stream.auth : permissions.anonymous, false)
         rpc.id = _id
@@ -264,9 +269,3 @@ module.exports = {
       }
     }
   }
-
-
-
-
-
-
