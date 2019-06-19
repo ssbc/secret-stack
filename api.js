@@ -53,14 +53,14 @@ module.exports = function (plugins, defaultConfig) {
   create.permissions = {}
 
   create.use = function (plug) {
-    if(u.isFunction(plug))
-      return create.plugins.push({init: plug}), create
-
     if(Array.isArray(plug))
       return plug.forEach(create.use), create
 
-    if(!plug.init)
-      throw new Error('plugins *must* have "init" method')
+    if(!plug.init) {
+      if(u.isFunction(plug))
+        return create.plugins.push({init: plug}), create
+      else throw new Error('plugins *must* have "init" method')
+    }
 
     if(u.isString(plug.name))
       if(find(create.plugins, function (_plug) {
