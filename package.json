@@ -1,7 +1,7 @@
 {
   "name": "secret-stack",
   "description": "create secure peer to peer networks using secret-handshakes",
-  "version": "6.1.2",
+  "version": "6.2.0",
   "homepage": "https://github.com/ssbc/secret-stack",
   "repository": {
     "type": "git",
