@@ -65,8 +65,10 @@ module.exports = function (plugins, defaultConfig) {
     if(u.isString(plug.name))
       if(find(create.plugins, function (_plug) {
         return _plug.name === plug.name
-      }))
-        throw new Error('plugin named:'+plug.name+' is already loaded')
+      })) {
+        console.error('plugin named:'+plug.name+' is already loaded, skipping')
+	return create
+      }
 
     var name = plug.name
     if(plug.manifest)
