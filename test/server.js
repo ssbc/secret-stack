@@ -50,12 +50,14 @@ tape('alice connects to bob', function (t) {
 
 tape('alice is client, bob is server', function (t) {
 
-  t.plan(2)
+  t.plan(4)
 
   alice.on('rpc:connect', function (rpc, isClient) {
+    t.true(rpc.stream.address.substr(0,4) === 'net:' && rpc.stream.address.length > 40);
     t.ok(isClient)
   })
   bob.on('rpc:connect', function (rpc, isClient) {
+    t.true(rpc.stream.address.substr(0,4) === 'net:' && rpc.stream.address.length > 40);
     t.notOk(isClient)
   })
 
