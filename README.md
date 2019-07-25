@@ -19,10 +19,10 @@ var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' }
   .use(databasePlugin)
   .use(bluetoothPlugin)
 
-vap app = App(config)
+var app = App(config)
 ```
 
-For documentation on plugins, see [PLUGINS.md](./PLUGINS.md) 
+For documentation on plugins, see [PLUGINS.md](./PLUGINS.md).
 
 
 ## API
@@ -53,6 +53,15 @@ Start the app and returns an EventEmitter with methods (core and plugin) attache
 - ... - (optional)
 
 `config` will be passed to each plugin as they're initialised (as `merge(opts, config)` which opts were those options `SecretStack` factory was initialised with).
+
+This `app` as an EventEmitter emits the following events:
+
+- `'multiserver:listening'`: emitted once the app's multiserver server is set up successfully, with no arguments
+- `'rpc:connect'`: emitted every time a peer has been successfully connected with us, with the arguments:
+  - `rpc`: the muxrpc object to call the peer's remote functions, includes `rpc.stream` and `rpc.stream.address` (the multiserver address for this remote peer)
+  - `isClient`: a boolean indicating whether we are the client (true) or the server (false)
+- `'close'`: emitted once `app.close()` has finished teardown logic, with the arguments:
+  - `err`: if there was any error during closing
 
 ### app.getAddress()
 
@@ -102,8 +111,8 @@ Optionally takes `(err, callback)`
 
 ## TODO document
 
-> mix: I think some of these are exposed over muxrpc (as they're in the manifest) 
-and some can only be run locally if you have access to the instance of `app` you 
+> mix: I think some of these are exposed over muxrpc (as they're in the manifest)
+and some can only be run locally if you have access to the instance of `app` you
 got returned after initialising it.
 
 ### `app.id => String`  (alias `publicKey`)

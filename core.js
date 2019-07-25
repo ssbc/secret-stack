@@ -185,6 +185,7 @@ module.exports = {
         var rpcStream = rpc.stream
         if(timeout_inactivity > 0 && api.id !== rpc.id) rpcStream = Inactive(rpcStream, timeout_inactivity)
         rpc.meta = stream.meta
+        rpc.stream.address = stream.address
 
         pull(stream, rpcStream, stream)
 
@@ -229,13 +230,13 @@ module.exports = {
           transport: function (transport) {
             if(server) throw new Error('cannot add protocol after server initialized')
             if(!isObject(transport) && isString(transport.name) && isFunction(transport.create))
-              throw new Error('transport must be {name: string, create: function}') 
+              throw new Error('transport must be {name: string, create: function}')
             debug('Adding transport %s', transport.name)
             transports.push(transport); return this
           },
           transform: function (transform) {
             if(!isObject(transform) && isString(transform.name) && isFunction(transform.create))
-              throw new Error('transform must be {name: string, create: function}') 
+              throw new Error('transform must be {name: string, create: function}')
             debug('Adding transform %s', transform.name)
             transforms.push(transform); return this
           },
