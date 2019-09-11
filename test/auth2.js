@@ -1,7 +1,7 @@
 var tape = require('tape')
 var crypto = require('crypto')
 var ssbKeys = require('ssb-keys')
-var SecretStack = require('../')
+var SecretStack = require('../src')
 var seeds = require('./seeds')
 
 var keys = {

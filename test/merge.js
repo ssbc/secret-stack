@@ -1,5 +1,5 @@
 var tape = require('tape')
-var merge = require('../util').merge
+var merge = require('../src/util').merge
 
 tape('merge permissions', function (t) {
   var m = merge.permissions({

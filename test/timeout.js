@@ -1,6 +1,6 @@
 var tape = require('tape')
 var crypto = require('crypto')
-var SecretStack = require('../')
+var SecretStack = require('../src')
 var seeds = require('./seeds')
 
 // deterministic keys make testing easy.
