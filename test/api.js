@@ -1,5 +1,5 @@
 var tape = require('tape')
-var Api = require('../api')
+var Api  = require('../src/api')
 
 tape('add a core api + a plugin', function (t) {
   var Create = Api([{

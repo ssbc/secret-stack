@@ -1,6 +1,6 @@
 var pull = require('pull-stream')
 var crypto = require('crypto')
-var SecretStack = require('../')
+var SecretStack = require('../src')
 var seeds = require('./seeds')
 
 var Pushable = require('pull-pushable')
