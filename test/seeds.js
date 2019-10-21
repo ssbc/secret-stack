@@ -5,7 +5,7 @@
 //using vanity-ed25519 module.
 
 function S (base64) {
-  return new Buffer(base64, 'base64')
+  return Buffer.from(base64, 'base64')
 }
 
 exports.alice = S('8C37zWNNunT5q2K8hS9WX6FitXQ9kfU6uZLJV+Swc/s=')
