@@ -13,7 +13,7 @@
     "ip": "^1.1.5",
     "map-merge": "^1.1.0",
     "multiserver": "^3.1.0",
-    "muxrpc": "^6.4.0",
+    "muxrpc": "^6.4.8",
     "non-private-ip": "^1.4.3",
     "pull-inactivity": "~2.1.1",
     "pull-rate": "^1.0.2",
