@@ -51,7 +51,7 @@ methods exposed by the plugin can be accessed at `app.pluginName.methodName`
 
 Plugins can be used to for a number of different use cases, like adding
 a persistent underlying database ([ssb-db](https://github.com/ssbc/ssb-db')) 
-or layering indexes on top of the underlying store ([ssb-links](https://github.com/ssbc/ssb-links')).
+or layering indexes on top of the underlying store ([ssb-links](https://github.com/ssbc/ssb-links)).
 
 It becomes very easy to lump a bunch of plugins together and create a
 more sophisticated application.
