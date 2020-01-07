@@ -40,7 +40,7 @@ exports.parseAddress = function (e) {
 }
 
 var fromId = exports.fromId = function (id) {
-  return new Buffer(id.substring(0, id.indexOf('.')), 'base64')
+  return Buffer.from(id.substring(0, id.indexOf('.')), 'base64')
 }
 
 exports.toId = function (pub) {

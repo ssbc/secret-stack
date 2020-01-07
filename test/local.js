@@ -1,10 +1,9 @@
 var Illuminati = require('../')
 var tape = require('tape')
-var u = require('../util')
 
 var seeds = require('./seeds')
 
-var appkey = new Buffer(32)
+var appkey = Buffer.alloc(32)
 
 var create = Illuminati({
   appKey: appkey,

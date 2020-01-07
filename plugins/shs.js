@@ -1,4 +1,4 @@
-var u  = require('../util')
+var u = require('../util')
 var Shs = require('multiserver/plugins/shs')
 
 exports.name = 'multiserver-shs'
@@ -9,10 +9,10 @@ function isFunction (f) { return 'function' === typeof f }
 function isString (s) { return 'string' === typeof s }
 function isObject (o) { return o && 'object' === typeof o && !Array.isArray(o) }
 
-function toBuffer(base64) {
+function toBuffer (base64) {
   if(Buffer.isBuffer(base64)) return base64
   var i = base64.indexOf('.')
-  return new Buffer(~i ? base64.substring(0, i) : base64, 'base64')
+  return Buffer.from(~i ? base64.substring(0, i) : base64, 'base64')
 }
 
 function toSodiumKeys (keys) {
@@ -34,7 +34,7 @@ exports.init = function (api, config, permissions) {
 
   //set all timeouts to one setting, needed in the tests.
   if(opts.timeout)
-    timeout_handshake = timeout_inactivity = opts.timeout
+    timeout_handshake =  opts.timeout
 
   var shsCap = (config.caps && config.caps.shs) || config.appKey
   if(!shsCap) throw new Error('secret-stack/plugins/shs must have caps.shs configured')
@@ -67,12 +67,3 @@ exports.init = function (api, config, permissions) {
     }
   })
 }
-
-
-
-
-
-
-
-
-
