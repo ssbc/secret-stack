@@ -21,6 +21,9 @@
     "stream-to-pull-stream": "^1.6.1",
     "to-camel-case": "^1.0.0"
   },
+  "engines": {
+    "node": ">=5.10.0"
+  },
   "devDependencies": {
     "pull-pushable": "^2.0.1",
     "ssb-keys": "^7.1.5",
