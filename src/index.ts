@@ -4,18 +4,16 @@ import Api = require('./api')
 export = function SecretStack (config: any) {
   // this weird thing were some config is loaded first,
   // then the rest later... not necessary.
-  config = config || {}
-  config.permissions = config.permissions || {}
+  config = config ?? {}
+  config.permissions = config.permissions ?? {}
 
-  var plugin = {
+  const plugin = {
     permissions: config.permissions,
     init: function () {}
   }
 
-  var create = Api(
-    [plugin], // weird that this passes a mostly empty plugin in here?
-    config
-  )
+  // weird that this passes a mostly empty plugin in here?
+  const create = Api([plugin], config)
 
   return (
     create
