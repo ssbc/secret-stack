@@ -7,6 +7,7 @@
     "type": "git",
     "url": "git://github.com/ssbc/secret-stack.git"
   },
+  "main": "lib/index.js",
   "dependencies": {
     "debug": "^4.1.0",
     "hoox": "0.0.1",
@@ -22,15 +23,33 @@
     "node": ">=5.10.0"
   },
   "devDependencies": {
+    "@types/node": "^12.12.2",
+    "@typescript-eslint/eslint-plugin": "^3.5.0",
+    "@typescript-eslint/parser": "^3.5.0",
     "pull-pushable": "^2.0.1",
     "ssb-keys": "^7.1.5",
-    "standard": "^14.3.4",
-    "tape": "^4.0.0"
+    "standardx": "^5.0.0",
+    "tape": "^4.0.0",
+    "typescript": "~3.9.5"
   },
   "scripts": {
-    "prepublishOnly": "npm ls &&  npm test",
-    "lint": "standard --fix",
-    "test": "standard && set -e; for t in test/*.js; do node $t; done"
+    "prepublishOnly": "npm ls && npm test",
+    "compile": "tsc",
+    "lint": "standardx --fix '**/*.ts'",
+    "pretest": "npm run compile",
+    "test": "standardx '**/*.ts' && set -e; for t in test/*.js; do node $t; done"
+  },
+  "eslintConfig": {
+    "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "error"
+    }
+  },
+  "standardx": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint/eslint-plugin"
+    ]
   },
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
   "license": "MIT"
