@@ -1,46 +1,34 @@
 import * as u from './util'
-var EventEmitter = require('events')
-var Hookable = require('hoox')
+const EventEmitter = require('events')
+const Hookable = require('hoox')
 
-function id<T = any> (e: T): T {
-  return e
-}
+const identity = (x: any): any => x
 
 function merge (a: any, b: any, mapper?: any) {
-  mapper = mapper || id
-
-  for (var k in b) {
+  mapper = mapper ?? identity
+  for (const k in b) {
     if (
       b[k] &&
       typeof b[k] === 'object' &&
       !Buffer.isBuffer(b[k]) &&
       !Array.isArray(b[k])
     ) {
-      merge((a[k] = {}), b[k], mapper)
+      a[k] = {}
+      merge(a[k], b[k], mapper)
     } else {
       a[k] = mapper(b[k], k)
     }
   }
-
   return a
 }
 
-function find (ary: Array<any>, test: Function) {
-  var v
-  for (var i = 0; i < ary.length; i++) {
-    v = test(ary[i], i, ary)
-    if (v) return v
-  }
-  return v
-}
-
 export = function Api (plugins: any, defaultConfig: any) {
-  function create (opts: any) {
-    opts = merge(merge({}, defaultConfig), opts)
+  function create (inputOpts: any) {
+    const opts = merge(merge({}, defaultConfig), inputOpts)
     // change event emitter to something with more rigorous security?
-    var api = new EventEmitter()
-    create.plugins.forEach(function (plug) {
-      var _api = plug.init.call(
+    let api = new EventEmitter()
+    create.plugins.forEach((plug) => {
+      let _api = plug.init.call(
         {},
         api,
         opts,
@@ -48,21 +36,21 @@ export = function Api (plugins: any, defaultConfig: any) {
         create.manifest
       )
       if (plug.name) {
-        var o: any = {}
-        o[u.toCamelCase(plug.name)] = _api
+        const camelCaseName = u.toCamelCase(plug.name)
+        const o: any = {}
+        o[camelCaseName] = _api
         _api = o
       }
-      api = merge(api, _api, function (v: any, k: any) {
-        if (typeof v === 'function') {
-          v = Hookable(v)
-          if (plug.manifest && plug.manifest[k] === 'sync') {
-            u.hookOptionalCB(v)
+      api = merge(api, _api, (val: any, key: any) => {
+        if (typeof val === 'function') {
+          val = Hookable(val)
+          if (plug.manifest && plug.manifest[key] === 'sync') {
+            u.hookOptionalCB(val)
           }
         }
-        return v
+        return val
       })
     })
-
     return api
   }
 
@@ -77,7 +65,7 @@ export = function Api (plugins: any, defaultConfig: any) {
     }
 
     if (!plug.init) {
-      if (u.isFunction(plug)) {
+      if (typeof plug === 'function') {
         create.plugins.push({ init: plug })
         return create
       } else {
@@ -85,10 +73,8 @@ export = function Api (plugins: any, defaultConfig: any) {
       }
     }
 
-    if (u.isString(plug.name)) {
-      var found = find(create.plugins, function (_plug: any) {
-        return _plug.name === plug.name
-      })
+    if (plug.name && typeof plug.name === 'string') {
+      const found = create.plugins.some((p) => p.name === plug.name)
       if (found) {
         console.error(
           'plugin named:' + plug.name + ' is already loaded, skipping'
@@ -97,7 +83,7 @@ export = function Api (plugins: any, defaultConfig: any) {
       }
     }
 
-    var name = plug.name
+    const name = plug.name
     if (plug.manifest) {
       create.manifest = u.merge.manifest(
         create.manifest,

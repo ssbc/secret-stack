@@ -1,6 +1,5 @@
-var isArray = Array.isArray
-var mapMerge = require('map-merge')
-var camelize = require('to-camel-case')
+const mapMerge = require('map-merge')
+const camelize = require('to-camel-case')
 
 function isObject (o: any) {
   return o && typeof o === 'object'
@@ -10,11 +9,11 @@ export function clone (obj: any, mapper: any): any {
   function map (v: any, k?: string | number) {
     return isObject(v) ? clone(v, mapper) : mapper(v, k)
   }
-  if (isArray(obj)) {
+  if (Array.isArray(obj)) {
     return obj.map(map)
   } else if (isObject(obj)) {
-    var o: any = {}
-    for (var k in obj) {
+    const o: any = {}
+    for (const k in obj) {
       o[k] = map(obj[k], k)
     }
     return o
@@ -27,18 +26,16 @@ export function toId (pub: Buffer | string) {
   return Buffer.isBuffer(pub) ? pub.toString('base64') + '.ed25519' : pub
 }
 
-export var merge = {
-  permissions: function (perms: any, _perms: any, name?: string) {
+export const merge = {
+  permissions (perms: any, _perms: any, name?: string) {
     return mapMerge(
       perms,
-      clone(_perms, function (v: any) {
-        return name ? name + '.' + v : v
-      })
+      clone(_perms, (v: any) => name ? name + '.' + v : v)
     )
   },
-  manifest: function (manf: any, _manf: any, name?: string) {
+  manifest (manf: any, _manf: any, name?: string) {
     if (name) {
-      var o: any = {}
+      const o: any = {}
       o[name] = _manf
       _manf = o
     }
@@ -51,9 +48,9 @@ export function hookOptionalCB (syncFn: any) {
   // we're going to hook it so you can optionally pass a callback
   syncFn.hook(function (this: any, fn: any, args: Array<any>) {
     // if a function is given as the last argument, treat it as a callback
-    var cb = args[args.length - 1]
+    const cb = args[args.length - 1]
     if (typeof cb === 'function') {
-      var res
+      let res
       args.pop() // remove cb from the arguments
       try {
         res = fn.apply(this, args)
@@ -70,12 +67,4 @@ export function hookOptionalCB (syncFn: any) {
 
 export function toCamelCase (n: string | undefined | null) {
   return n ? camelize(n) : n
-}
-
-export function isFunction (f: any): f is CallableFunction {
-  return typeof f === 'function'
-}
-
-export function isString (s: any): s is string {
-  return s && typeof s === 'string'
 }
