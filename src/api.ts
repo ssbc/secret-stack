@@ -1,12 +1,12 @@
+import * as u from './util'
 var EventEmitter = require('events')
-var u = require('./util')
 var Hookable = require('hoox')
 
-function id (e) {
+function id<T = any> (e: T): T {
   return e
 }
 
-function merge (a, b, mapper) {
+function merge (a: any, b: any, mapper?: any) {
   mapper = mapper || id
 
   for (var k in b) {
@@ -25,7 +25,7 @@ function merge (a, b, mapper) {
   return a
 }
 
-function find (ary, test) {
+function find (ary: Array<any>, test: Function) {
   var v
   for (var i = 0; i < ary.length; i++) {
     v = test(ary[i], i, ary)
@@ -34,8 +34,8 @@ function find (ary, test) {
   return v
 }
 
-module.exports = function (plugins, defaultConfig) {
-  function create (opts) {
+export = function Api (plugins: any, defaultConfig: any) {
+  function create (opts: any) {
     opts = merge(merge({}, defaultConfig), opts)
     // change event emitter to something with more rigorous security?
     var api = new EventEmitter()
@@ -48,11 +48,11 @@ module.exports = function (plugins, defaultConfig) {
         create.manifest
       )
       if (plug.name) {
-        var o = {}
+        var o: any = {}
         o[u.toCamelCase(plug.name)] = _api
         _api = o
       }
-      api = merge(api, _api, function (v, k) {
+      api = merge(api, _api, function (v: any, k: any) {
         if (typeof v === 'function') {
           v = Hookable(v)
           if (plug.manifest && plug.manifest[k] === 'sync') {
@@ -66,11 +66,11 @@ module.exports = function (plugins, defaultConfig) {
     return api
   }
 
-  create.plugins = []
+  create.plugins = [] as Array<any>
   create.manifest = {}
   create.permissions = {}
 
-  create.use = function (plug) {
+  create.use = function (plug: any) {
     if (Array.isArray(plug)) {
       plug.forEach(create.use)
       return create
@@ -86,7 +86,7 @@ module.exports = function (plugins, defaultConfig) {
     }
 
     if (u.isString(plug.name)) {
-      var found = find(create.plugins, function (_plug) {
+      var found = find(create.plugins, function (_plug: any) {
         return _plug.name === plug.name
       })
       if (found) {
@@ -115,9 +115,8 @@ module.exports = function (plugins, defaultConfig) {
     create.plugins.push(plug)
 
     return create
-  }
-
-  ;[].concat(plugins).filter(Boolean).forEach(create.use)
+  };
+  [].concat(plugins).filter(Boolean).forEach(create.use)
 
   return create
-}
+};

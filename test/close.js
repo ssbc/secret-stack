@@ -1,5 +1,5 @@
 var crypto = require('crypto')
-var SecretStack = require('../src')
+var SecretStack = require('../lib')
 var seeds = require('./seeds')
 
 // deterministic keys make testing easy.

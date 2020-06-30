@@ -1,36 +1,36 @@
+import * as u from './util'
 var Muxrpc = require('muxrpc')
 var pull = require('pull-stream')
 // var Rate = require('pull-rate')
-var u = require('./util')
 var MultiServer = require('multiserver')
 var Inactive = require('pull-inactivity')
 var debug = require('debug')('secret-stack')
 
-function isFunction (f) {
+function isFunction (f: any): f is Function {
   return typeof f === 'function'
 }
 
-function isString (s) {
+function isString (s: any): s is string {
   return typeof s === 'string'
 }
 
-function isObject (o) {
+function isObject (o: any): any {
   return o && typeof o === 'object' && !Array.isArray(o)
 }
 
 var isArray = Array.isArray
 
-function toBase64 (s) {
+function toBase64 (s: Buffer | string) {
   if (isString(s)) return s
-  else s.toString('base64') // assume a buffer
+  else return s.toString('base64') // assume a buffer
 }
 
-function each (obj, iter) {
+function each (obj: any, iter: any) {
   if (Array.isArray(obj)) return obj.forEach(iter)
   for (var k in obj) iter(obj[k], k, obj)
 }
 
-function coearseAddress (address) {
+function coearseAddress (address: any) {
   if (isObject(address)) {
     var protocol = 'net'
     if (address.host.endsWith('.onion')) {
@@ -59,11 +59,11 @@ function msLogger (stream) {
 }
 */
 
-function isPermsList (list) {
+function isPermsList (list: any) {
   return list == null || (isArray(list) && list.every(isString))
 }
 
-function isPermissions (perms) {
+function isPermissions (perms: any) {
   // allow: null means enable everything.
   return (
     perms &&
@@ -73,7 +73,7 @@ function isPermissions (perms) {
   )
 }
 
-module.exports = {
+export = {
   manifest: {
     auth: 'async',
     address: 'sync',
@@ -83,21 +83,21 @@ module.exports = {
       address: 'sync'
     }
   },
-  init: function (api, opts, permissions, manifest) {
+  init: function (api: any, opts: any, permissions: any, manifest: any) {
     // defaults
     //      opts.appKey = opts.appKey || appKey
 
-    var timeoutInactivity
+    var timeoutInactivity: number
     if (opts.timers && !isNaN(opts.timers.inactivity)) {
       timeoutInactivity = opts.timers.inactivity
     }
     // if opts.timers are set, pick a longer default
     // but if not, set a short default (as needed in the tests)
-    timeoutInactivity = timeoutInactivity || (opts.timers ? 600e3 : 5e3)
+    timeoutInactivity = timeoutInactivity! || (opts.timers ? 600e3 : 5e3)
 
     if (!opts.connections) {
-      var netIn = { scope: ['device', 'local', 'public'], transform: 'shs' }
-      var netOut = { transform: 'shs' }
+      var netIn: any = { scope: ['device', 'local', 'public'], transform: 'shs' }
+      var netOut: any = { transform: 'shs' }
       // avoid setting properties to value `undefined`
       if (opts.host) netIn.host = opts.host
       if (opts.port) {
@@ -112,15 +112,17 @@ module.exports = {
         }
       }
     }
-    var peers = (api.peers = {})
+    var peers: any = (api.peers = {})
 
-    var transports = []
+    var transports: Array<any> = []
 
-    var transforms = [
+    var transforms: Array<any> = [
       // function () { return shs }
     ]
 
-    var server, ms, msClient
+    var server: any
+    var ms: any
+    var msClient: any
 
     function setupMultiserver () {
       if (api.closed) return
@@ -129,11 +131,13 @@ module.exports = {
         throw new Error('secret-stack needs at least 1 transform protocol')
       }
 
-      var serverSuites = []
-      var clientSuites = []
+      var serverSuites: Array<any> = []
+      var clientSuites: Array<any> = []
 
       for (var incTransportType in opts.connections.incoming) {
-        opts.connections.incoming[incTransportType].forEach(function (conf) {
+        opts.connections.incoming[incTransportType].forEach(function (
+          conf: any
+        ) {
           transforms.forEach(function (transform) {
             transports.forEach(function (transport) {
               if (
@@ -167,7 +171,9 @@ module.exports = {
       }
 
       for (var outTransportType in opts.connections.outgoing) {
-        opts.connections.outgoing[outTransportType].forEach(function (conf) {
+        opts.connections.outgoing[outTransportType].forEach(function (
+          conf: any
+        ) {
           transforms.forEach(function (transform) {
             transports.forEach(function (transport) {
               if (
@@ -193,7 +199,7 @@ module.exports = {
 
     setImmediate(setupMultiserver)
 
-    function setupRPC (stream, manf, isClient) {
+    function setupRPC (stream: any, manf: any, isClient?: boolean) {
       // idea: make muxrpc part of the multiserver stream so that we can upgrade it.
       //       we'd need to fallback to using default muxrpc on ordinary connections.
       //       but maybe the best way to represent that would be to coearse addresses to
@@ -237,13 +243,13 @@ module.exports = {
     return {
       config: opts,
       // can be called remotely.
-      auth: function (pub, cb) {
+      auth: function (_pub: any, cb: Function) {
         cb()
       },
-      address: function (scope) {
+      address: function (scope?: any) {
         return api.getAddress(scope)
       },
-      getAddress: function (scope) {
+      getAddress: function (scope?: any) {
         setupMultiserver()
         return ms.stringify(scope) || null
       },
@@ -254,15 +260,18 @@ module.exports = {
         return this.manifest()
       },
       // cannot be called remote.
-      connect: function (address, cb) {
+      connect: function (address: any, cb: Function) {
         setupMultiserver()
-        msClient.client(coearseAddress(address), function (err, stream) {
+        msClient.client(coearseAddress(address), function (
+          err: any,
+          stream: any
+        ) {
           return err ? cb(err) : cb(null, setupRPC(stream, null, true))
         })
       },
 
       multiserver: {
-        transport: function (transport) {
+        transport: function (transport: any) {
           if (server) {
             throw new Error('cannot add protocol after server initialized')
           }
@@ -279,7 +288,7 @@ module.exports = {
           transports.push(transport)
           return this
         },
-        transform: function (transform) {
+        transform: function (transform: any) {
           if (
             !isObject(transform) &&
             isString(transform.name) &&
@@ -293,15 +302,15 @@ module.exports = {
           transforms.push(transform)
           return this
         },
-        parse: function (str) {
+        parse: function (str: string) {
           return ms.parse(str)
         },
-        address: function (scope) {
+        address: function (scope?: any) {
           setupMultiserver()
           return ms.stringify(scope) || null
         }
       },
-      close: function (err, cb) {
+      close: function (err: any, cb: Function) {
         if (isFunction(err)) {
           cb = err
           err = null
@@ -309,15 +318,15 @@ module.exports = {
         api.closed = true
         if (!server) cb && cb()
         else {
-          (server.close || server)(function (err) {
+          (server.close || server)(function (err: any) {
             api.emit('close', err)
             cb && cb(err)
           })
         }
 
         if (err) {
-          each(peers, function (connections, id) {
-            each(connections, function (rpc) {
+          each(peers, function (connections: any) {
+            each(connections, function (rpc: any) {
               rpc.close(err)
             })
           })
@@ -325,4 +334,4 @@ module.exports = {
       }
     }
   }
-}
+};

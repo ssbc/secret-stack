@@ -1,8 +1,7 @@
-'use strict'
-var Api = require('./api')
+import Api = require('./api')
 
 // config must have appKey
-module.exports = function (config) {
+export = function SecretStack (config: any) {
   // this weird thing were some config is loaded first,
   // then the rest later... not necessary.
   config = config || {}

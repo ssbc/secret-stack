@@ -1,5 +1,5 @@
 var tape = require('tape')
-var SecretStack = require('../src')
+var SecretStack = require('../lib')
 var seeds = require('./seeds')
 
 var appkey = Buffer.alloc(32)
