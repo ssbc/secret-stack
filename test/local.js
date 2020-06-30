@@ -1,16 +1,15 @@
-var Illuminati = require('../')
 var tape = require('tape')
-
+var SecretStack = require('../')
 var seeds = require('./seeds')
 
 var appkey = Buffer.alloc(32)
 
-var create = Illuminati({
-  appKey: appkey,
+var create = SecretStack({
+  appKey: appkey
 })
 create.use({
   manifest: {
-    ping: 'sync',
+    ping: 'sync'
   },
   permissions: {
     anonymous: { allow: ['ping'], deny: null }
@@ -26,7 +25,7 @@ create.use({
 
 var alice = create({
   seed: seeds.alice,
-  timeout: 100,
+  timeout: 100
 })
 
 tape('do not timeout local client rpc', function (t) {
