@@ -1,9 +1,10 @@
 'use strict'
 var Api = require('./api')
 
-//config must have appKey
+// config must have appKey
 module.exports = function (config) {
-  //this weird thing were some config is loaded first, then the rest later... not necessary.
+  // this weird thing were some config is loaded first,
+  // then the rest later... not necessary.
   config = config || {}
   config.permissions = config.permissions || {}
 
@@ -13,13 +14,15 @@ module.exports = function (config) {
   }
 
   var create = Api(
-    [ plugin ], //weird that this passes a mostly empty plugin in here?
+    [plugin], // weird that this passes a mostly empty plugin in here?
     config
   )
 
-  return create
-    .use(require('./core'))
-    //default network plugins
-    .use(require('./plugins/net'))
-    .use(require('./plugins/shs'))
+  return (
+    create
+      .use(require('./core'))
+      // default network plugins
+      .use(require('./plugins/net'))
+      .use(require('./plugins/shs'))
+  )
 }

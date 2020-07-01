@@ -1,11 +1,10 @@
 var tape = require('tape')
-var Api  = require('../api')
+var Api = require('../api')
 
 tape('add a core api + a plugin', function (t) {
-
   var Create = Api([{
     init: function (api, opts) {
-      t.deepEqual(opts, {okay: true})
+      t.deepEqual(opts, { okay: true })
       return {
         hello: function (name) {
           return 'Hello, ' + name + '.'
@@ -14,13 +13,13 @@ tape('add a core api + a plugin', function (t) {
     }
   }])
 
-  var api = Create({okay: true})
+  var api = Create({ okay: true })
 
   t.equal(api.hello('Foo'), 'Hello, Foo.')
 
   Create.use({
     init: function (api, opts) {
-      t.deepEqual(opts, {okay: true})
+      t.deepEqual(opts, { okay: true })
       api.hello.hook(function (greet, args) {
         var value = greet(args[0])
         return value.substring(0, value.length - 1) + '!!!'
@@ -28,14 +27,13 @@ tape('add a core api + a plugin', function (t) {
     }
   })
 
-  var api2 = Create({okay: true})
+  var api2 = Create({ okay: true })
   t.equal(api2.hello('Foo'), 'Hello, Foo!!!')
   t.end()
 })
 
 tape('named plugin', function (t) {
-
-  //core, not a plugin.
+  // core, not a plugin.
   var Create = Api([{
     manifest: {
       hello: 'sync'
@@ -57,7 +55,7 @@ tape('named plugin', function (t) {
       goodbye: 'async'
     },
     init: function () {
-      return {goodbye: function (n, cb) { cb(null, n) }}
+      return { goodbye: function (n, cb) { cb(null, n) } }
     }
   })
 
@@ -71,10 +69,8 @@ tape('named plugin', function (t) {
   t.end()
 })
 
-
 tape('camel-case plugin', function (t) {
-
-  //core, not a plugin.
+  // core, not a plugin.
   var Create = Api([{
     manifest: {},
     init: function (api) {
@@ -90,7 +86,7 @@ tape('camel-case plugin', function (t) {
       goodbye: 'async'
     },
     init: function () {
-      return {goodbye: function (n, cb) { cb(null, n) }}
+      return { goodbye: function (n, cb) { cb(null, n) } }
     }
   })
 
@@ -104,8 +100,7 @@ tape('camel-case plugin', function (t) {
 })
 
 tape('compound (array) plugins', function (t) {
-
-  //core, not a plugin.
+  // core, not a plugin.
   var Create = Api([{
     manifest: {
       hello: 'sync'
@@ -128,7 +123,7 @@ tape('compound (array) plugins', function (t) {
         goodbye: 'async'
       },
       init: function () {
-        return {goodbye: function (n, cb) { cb(null, n) }}
+        return { goodbye: function (n, cb) { cb(null, n) } }
       }
     }, {
       name: 'bar',
@@ -136,7 +131,7 @@ tape('compound (array) plugins', function (t) {
         farewell: 'async'
       },
       init: function () {
-        return {farewell: function (n, cb) { cb(null, n) }}
+        return { farewell: function (n, cb) { cb(null, n) } }
       }
     }
   ])
@@ -155,8 +150,7 @@ tape('compound (array) plugins', function (t) {
 })
 
 tape('optional cb hook for sync api methods', function (t) {
-
-  //core, not a plugin.
+  // core, not a plugin.
   var Create = Api([{
     manifest: {
       hello: 'sync'
@@ -180,15 +174,14 @@ tape('optional cb hook for sync api methods', function (t) {
     init: function () {
       return {
         goodbye: function (n) {
-          if (n === 0)
-            throw "bad input!"
+          if (n === 0) { throw new Error('bad input!') }
           return n
         }
       }
     }
   })
 
-  var api = Create({okay: true})
+  var api = Create({ okay: true })
 
   // sync usages
   t.equal(api.hello('Foo'), 'Hello, Foo.')
@@ -216,4 +209,3 @@ tape('optional cb hook for sync api methods', function (t) {
     })
   })
 })
-

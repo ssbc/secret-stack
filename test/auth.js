@@ -1,19 +1,17 @@
-var Illuminati = require('../')
-var crypto = require('crypto')
 var tape = require('tape')
-var u = require('../util')
-
+var crypto = require('crypto')
+var SecretStack = require('../')
 var seeds = require('./seeds')
 
-//deterministic keys make testing easy.
+// deterministic keys make testing easy.
 function hash (s) {
   return crypto.createHash('sha256').update(s).digest()
 }
 
 var appkey = hash('test_key')
 
-var create = Illuminati({
-  appKey: appkey,
+var create = SecretStack({
+  appKey: appkey
 })
 
 create.use({
@@ -36,18 +34,16 @@ create.use({
     }
   }
 })
-.use(function (api) {
-  api.auth.hook(function (fn, args) {
-    var cb = args.pop()
-    var id = args.shift()
-    fn(id, function (err, res) {
-      if(err) return cb(err)
-      if(id === alice.id)
-        cb(null, {allow: ['hello', 'aliceOnly']})
-      else cb()
+  .use(function (api) {
+    api.auth.hook(function (fn, args) {
+      var cb = args.pop()
+      var id = args.shift()
+      fn(id, function (err, res) {
+        if (err) return cb(err)
+        if (id === alice.id) { cb(null, { allow: ['hello', 'aliceOnly'] }) } else cb()
+      })
     })
   })
-})
 
 var alice = create({
   seed: seeds.alice
@@ -63,9 +59,9 @@ var carol = create({
 
 tape('alice *can* use alice_only api', function (t) {
   alice.connect(bob.address(), function (err, rpc) {
-    if(err) throw err
+    if (err) throw err
     rpc.aliceOnly(function (err, data) {
-      if(err) throw err
+      if (err) throw err
       t.equal(data, 'hihihi')
       t.end()
     })
@@ -74,7 +70,7 @@ tape('alice *can* use alice_only api', function (t) {
 
 tape('carol *cannot* use alice_only api', function (t) {
   carol.connect(bob.address(), function (err, rpc) {
-    if(err) throw err
+    if (err) throw err
     rpc.aliceOnly(function (err, data) {
       t.ok(err)
       rpc.close(function () {
@@ -96,9 +92,9 @@ tape('bob calls back to a client connection', function (t) {
     })
   })
   carol.connect(bob.address(), function (err, rpc) {
+    t.error(err)
   })
 })
-
 
 tape('cleanup', function (t) {
   alice.close(true)
@@ -106,4 +102,3 @@ tape('cleanup', function (t) {
   carol.close(true)
   t.end()
 })
-

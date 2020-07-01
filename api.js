@@ -1,41 +1,59 @@
 var EventEmitter = require('events')
-var u            = require('./util')
-var Hookable     = require('hoox')
+var u = require('./util')
+var Hookable = require('hoox')
 
-function id (e) { return e }
+function id (e) {
+  return e
+}
 
 function merge (a, b, mapper) {
   mapper = mapper || id
 
-  for(var k in b) {
-    if(b[k] && 'object' === typeof b[k] && !Buffer.isBuffer(b[k]) && !Array.isArray(b[k]))
-      merge(a[k] = {}, b[k], mapper)
-    else
+  for (var k in b) {
+    if (
+      b[k] &&
+      typeof b[k] === 'object' &&
+      !Buffer.isBuffer(b[k]) &&
+      !Array.isArray(b[k])
+    ) {
+      merge((a[k] = {}), b[k], mapper)
+    } else {
       a[k] = mapper(b[k], k)
+    }
   }
 
   return a
 }
 
-function find(ary, test) {
+function find (ary, test) {
   var v
-  for(var i = 0; i < ary.length; i++)
-    if(v = test(ary[i], i, ary)) return v
+  for (var i = 0; i < ary.length; i++) {
+    v = test(ary[i], i, ary)
+    if (v) return v
+  }
   return v
 }
 
 module.exports = function (plugins, defaultConfig) {
   function create (opts) {
     opts = merge(merge({}, defaultConfig), opts)
-    //change event emitter to something with more rigorous security?
+    // change event emitter to something with more rigorous security?
     var api = new EventEmitter()
     create.plugins.forEach(function (plug) {
-      var _api = plug.init.call({}, api, opts, create.permissions, create.manifest)
-      if(plug.name) {
-        var o = {}; o[u.toCamelCase(plug.name)] = _api; _api = o
+      var _api = plug.init.call(
+        {},
+        api,
+        opts,
+        create.permissions,
+        create.manifest
+      )
+      if (plug.name) {
+        var o = {}
+        o[u.toCamelCase(plug.name)] = _api
+        _api = o
       }
       api = merge(api, _api, function (v, k) {
-        if ('function' === typeof v) {
+        if (typeof v === 'function') {
           v = Hookable(v)
           if (plug.manifest && plug.manifest[k] === 'sync') {
             u.hookOptionalCB(v)
@@ -53,30 +71,47 @@ module.exports = function (plugins, defaultConfig) {
   create.permissions = {}
 
   create.use = function (plug) {
-    if(Array.isArray(plug))
-      return plug.forEach(create.use), create
-
-    if(!plug.init) {
-      if(u.isFunction(plug))
-        return create.plugins.push({init: plug}), create
-      else throw new Error('plugins *must* have "init" method')
+    if (Array.isArray(plug)) {
+      plug.forEach(create.use)
+      return create
     }
 
-    if(u.isString(plug.name))
-      if(find(create.plugins, function (_plug) {
-        return _plug.name === plug.name
-      })) {
-        console.error('plugin named:'+plug.name+' is already loaded, skipping')
-	return create
+    if (!plug.init) {
+      if (u.isFunction(plug)) {
+        create.plugins.push({ init: plug })
+        return create
+      } else {
+        throw new Error('plugins *must* have "init" method')
       }
+    }
+
+    if (u.isString(plug.name)) {
+      var found = find(create.plugins, function (_plug) {
+        return _plug.name === plug.name
+      })
+      if (found) {
+        console.error(
+          'plugin named:' + plug.name + ' is already loaded, skipping'
+        )
+        return create
+      }
+    }
 
     var name = plug.name
-    if(plug.manifest)
-      create.manifest =
-        u.merge.manifest(create.manifest, plug.manifest, u.toCamelCase(name))
-    if(plug.permissions)
-      create.permissions =
-        u.merge.permissions(create.permissions, plug.permissions, u.toCamelCase(name))
+    if (plug.manifest) {
+      create.manifest = u.merge.manifest(
+        create.manifest,
+        plug.manifest,
+        u.toCamelCase(name)
+      )
+    }
+    if (plug.permissions) {
+      create.permissions = u.merge.permissions(
+        create.permissions,
+        plug.permissions,
+        u.toCamelCase(name)
+      )
+    }
     create.plugins.push(plug)
 
     return create
@@ -86,4 +121,3 @@ module.exports = function (plugins, defaultConfig) {
 
   return create
 }
-
