@@ -2,7 +2,7 @@ import * as u from './util'
 const EventEmitter = require('events')
 const Hookable = require('hoox')
 
-const identity = (x: any): any => x
+const identity = (x: unknown): unknown => x
 
 function merge (a: any, b: any, mapper?: any) {
   mapper = mapper ?? identity

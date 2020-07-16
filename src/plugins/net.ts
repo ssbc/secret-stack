@@ -4,9 +4,8 @@ const debug = require('debug')('secret-stack net plugin')
 export = {
   name: 'multiserver-net',
   version: '1.0.0',
-  manifest: {},
-  init (ssk: any) {
-    ssk.multiserver.transport({
+  init (api: any) {
+    api.multiserver.transport({
       name: 'net',
       create: (opts: any) => {
         debug(
@@ -20,4 +19,4 @@ export = {
       }
     })
   }
-};
+}

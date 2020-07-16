@@ -1,12 +1,12 @@
 const mapMerge = require('map-merge')
 const camelize = require('to-camel-case')
 
-function isObject (o: any) {
+function isObject (o: unknown): o is Record<string, unknown> {
   return o && typeof o === 'object'
 }
 
-export function clone (obj: any, mapper: any): any {
-  function map (v: any, k?: string | number) {
+export function clone (obj: unknown, mapper: any): any {
+  function map (v: unknown, k?: string | number) {
     return isObject(v) ? clone(v, mapper) : mapper(v, k)
   }
   if (Array.isArray(obj)) {
@@ -27,13 +27,13 @@ export function toId (pub: Buffer | string) {
 }
 
 export const merge = {
-  permissions (perms: any, _perms: any, name?: string) {
+  permissions (perms: unknown, _perms: unknown, name?: string) {
     return mapMerge(
       perms,
       clone(_perms, (v: any) => name ? name + '.' + v : v)
     )
   },
-  manifest (manf: any, _manf: any, name?: string) {
+  manifest (manf: unknown, _manf: unknown, name?: string) {
     if (name) {
       const o: any = {}
       o[name] = _manf
@@ -46,7 +46,7 @@ export const merge = {
 export function hookOptionalCB (syncFn: any) {
   // syncFn is a function that's expected to return its result or throw an error
   // we're going to hook it so you can optionally pass a callback
-  syncFn.hook(function (this: any, fn: any, args: Array<any>) {
+  syncFn.hook(function (this: unknown, fn: Function, args: Array<unknown>) {
     // if a function is given as the last argument, treat it as a callback
     const cb = args[args.length - 1]
     if (typeof cb === 'function') {

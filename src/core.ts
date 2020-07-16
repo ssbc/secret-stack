@@ -6,7 +6,7 @@ const MultiServer = require('multiserver')
 const Inactive = require('pull-inactivity')
 const debug = require('debug')('secret-stack')
 
-function isPlainObject (o: any): any {
+function isPlainObject (o: unknown): o is Record<string, unknown> {
   return o && typeof o === 'object' && !Array.isArray(o)
 }
 
@@ -15,7 +15,10 @@ function toBase64 (s: Buffer | string) {
   else return s.toString('base64') // assume a buffer
 }
 
-function each (objOrArr: Record<string, any> | Array<any>, iter: any) {
+function each<T> (
+  objOrArr: Record<string, T> | Array<T>,
+  iter: (t: T, k: string | number, o: Record<string, T> | Array<T>) => void
+) {
   if (Array.isArray(objOrArr)) {
     objOrArr.forEach(iter)
   } else {
@@ -36,16 +39,20 @@ function assertHasNameAndCreate (
   }
 }
 
-function coearseAddress (address: any) {
+// TODO: should probably replace this with ssb-ref#toMultiServerAddress or
+// just delete this and let multiserver handle invalid addresses. The 2nd option
+// sounds better, because we might already have address validation in ssb-conn
+// and so we don't need that kind of logic in secret-stack anymore.
+function coearseAddress (address: unknown) {
   if (isPlainObject(address)) {
     let protocol = 'net'
-    if (address.host.endsWith('.onion')) {
+    if (typeof address.host === 'string' && address.host.endsWith('.onion')) {
       protocol = 'onion'
     }
     return (
       [protocol, address.host, address.port].join(':') +
       '~' +
-      ['shs', toBase64(address.key)].join(':')
+      ['shs', toBase64(address.key as string)].join(':')
     )
   }
   return address
@@ -65,13 +72,13 @@ function msLogger (stream) {
 }
 */
 
-function isPermsList (list: Array<any> | null | undefined) {
+function isPermsList (list: unknown) {
   if (list === null) return true
   if (typeof list === 'undefined') return true
   return Array.isArray(list) && list.every((x) => typeof x === 'string')
 }
 
-function isPermissions (perms: any) {
+function isPermissions (perms: unknown) {
   // allow: null means enable everything.
   return (
     perms &&
@@ -140,8 +147,8 @@ export = {
         throw new Error('secret-stack needs at least 1 transform protocol')
       }
 
-      const serverSuites: Array<any> = []
-      const clientSuites: Array<any> = []
+      const serverSuites: Array<[unknown, unknown]> = []
+      const clientSuites: Array<[unknown, unknown]> = []
 
       for (const incTransportType in opts.connections.incoming) {
         opts.connections.incoming[incTransportType].forEach((conf: any) => {
@@ -204,7 +211,7 @@ export = {
 
     setImmediate(setupMultiserver)
 
-    function setupRPC (stream: any, manf: any, isClient?: boolean) {
+    function setupRPC (stream: any, manf: unknown, isClient?: boolean) {
       // idea: make muxrpc part of the multiserver stream so that we can upgrade it.
       //       we'd need to fallback to using default muxrpc on ordinary connections.
       //       but maybe the best way to represent that would be to coearse addresses to
@@ -248,7 +255,7 @@ export = {
     return {
       config: opts,
       // can be called remotely.
-      auth (_pub: any, cb: Function) {
+      auth (_pub: unknown, cb: Function) {
         cb()
       },
       address (scope?: any) {
@@ -265,12 +272,15 @@ export = {
         return this.manifest()
       },
       // cannot be called remote.
-      connect (address: any, cb: Function) {
+      connect (address: unknown, cb: Function) {
         setupMultiserver()
-        msClient.client(coearseAddress(address), (err: any, stream: any) => {
-          if (err) cb(err)
-          else cb(null, setupRPC(stream, null, true))
-        })
+        msClient.client(
+          coearseAddress(address),
+          (err: unknown, stream: unknown) => {
+            if (err) cb(err)
+            else cb(null, setupRPC(stream, null, true))
+          }
+        )
       },
 
       multiserver: {
@@ -297,7 +307,7 @@ export = {
           return ms.stringify(scope) || null
         }
       },
-      close (err: any, cb: Function) {
+      close (err: unknown, cb: Function) {
         if (typeof err === 'function') {
           cb = err
           err = null
@@ -305,7 +315,7 @@ export = {
         api.closed = true
         if (!server) cb && cb()
         else {
-          (server.close ?? server)((err: any) => {
+          (server.close ?? server)((err: unknown) => {
             api.emit('close', err)
             cb && cb(err)
           })
@@ -321,4 +331,4 @@ export = {
       }
     }
   }
-};
+}
