@@ -20,7 +20,6 @@ function toSodiumKeys (keys: any) {
 export = {
   name: 'multiserver-shs',
   version: '1.0.0',
-  mainfest: {},
   init (api: any, config: any) {
     let timeoutHandshake: number
     if (config.timers && !isNaN(config.timers.handshake)) {
@@ -42,7 +41,7 @@ export = {
       seed: config.seed,
       appKey: toBuffer(shsCap),
       timeout: timeoutHandshake,
-      authenticate: function (pub: any, cb: Function) {
+      authenticate: function (pub: string, cb: Function) {
         const id = '@' + u.toId(pub)
         api.auth(id, function (err: any, auth: any) {
           if (err) cb(err)
@@ -60,4 +59,4 @@ export = {
       create: () => shs
     })
   }
-};
+}
