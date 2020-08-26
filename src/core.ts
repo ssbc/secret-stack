@@ -1,4 +1,11 @@
 import * as u from './util'
+import {
+  Outgoing,
+  Incoming,
+  Transport,
+  Transform,
+  ScopeStr,
+} from './types'
 const Muxrpc = require('muxrpc')
 const pull = require('pull-stream')
 // const Rate = require('pull-rate')
@@ -27,7 +34,7 @@ function each<T> (
 }
 
 function assertHasNameAndCreate (
-  obj: Record<string, any>,
+  obj: Transform | Transport,
   type: 'transform' | 'transport'
 ) {
   if (
@@ -111,15 +118,14 @@ export = {
     timeoutInactivity = timeoutInactivity! || (opts.timers ? 600e3 : 5e3)
 
     if (!opts.connections) {
-      const netIn: any = {
+      const netIn: Incoming = {
         scope: ['device', 'local', 'public'],
-        transform: 'shs'
+        transform: 'shs',
+        ...(opts.host ? {host: opts.host} : null),
+        ...(opts.port ? {port: opts.port} : null),
       }
-      const netOut: any = { transform: 'shs' }
-      // avoid setting properties to value `undefined`
-      if (opts.host) netIn.host = opts.host
-      if (opts.port) {
-        netIn.port = opts.port
+      const netOut: Outgoing = {
+        transform: 'shs'
       }
       opts.connections = {
         incoming: {
@@ -132,9 +138,9 @@ export = {
     }
     const peers: any = (api.peers = {})
 
-    const transports: Array<any> = []
+    const transports: Array<Transport> = []
 
-    const transforms: Array<any> = []
+    const transforms: Array<Transform> = []
 
     let server: any
     let ms: any
@@ -258,10 +264,10 @@ export = {
       auth (_pub: unknown, cb: Function) {
         cb()
       },
-      address (scope?: any) {
+      address (scope?: ScopeStr) {
         return api.getAddress(scope)
       },
-      getAddress (scope?: any) {
+      getAddress (scope?: ScopeStr) {
         setupMultiserver()
         return ms.stringify(scope) || null
       },
@@ -284,7 +290,7 @@ export = {
       },
 
       multiserver: {
-        transport (transport: any) {
+        transport (transport: Transport) {
           if (server) {
             throw new Error('cannot add protocol after server initialized')
           }
@@ -293,7 +299,7 @@ export = {
           transports.push(transport)
           return this
         },
-        transform (transform: any) {
+        transform (transform: Transform) {
           assertHasNameAndCreate(transform, 'transform')
           debug('Adding transform %s', transform.name)
           transforms.push(transform)
@@ -302,7 +308,7 @@ export = {
         parse (str: string) {
           return ms.parse(str)
         },
-        address (scope?: any) {
+        address (scope?: ScopeStr) {
           setupMultiserver()
           return ms.stringify(scope) || null
         }
