@@ -1,3 +1,4 @@
+import { Incoming, Outgoing } from '../types'
 const Net = require('multiserver/plugins/net')
 const debug = require('debug')('secret-stack net plugin')
 
@@ -7,7 +8,7 @@ export = {
   init (api: any) {
     api.multiserver.transport({
       name: 'net',
-      create: (opts: any) => {
+      create: (opts: Incoming | Outgoing) => {
         debug(
           'creating transport host=%s port=%d scope=%s',
           opts.host,
