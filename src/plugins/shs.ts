@@ -19,7 +19,7 @@ function toSodiumKeys (keys: NonNullable<Config['keys']>) {
 }
 
 export = {
-  name: 'multiserver-shs',
+  name: 'multiserver-shs' as const,
   version: '1.0.0',
   init (api: any, config: Config) {
     let timeoutHandshake: number | undefined

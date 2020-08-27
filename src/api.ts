@@ -1,5 +1,6 @@
 import * as u from './util'
-const EventEmitter = require('events')
+import { Create, Plugin } from './types'
+import EventEmitter = require('events')
 const Hookable = require('hoox')
 
 const identity = (x: unknown): unknown => x
@@ -22,87 +23,95 @@ function merge (a: any, b: any, mapper?: any) {
   return a
 }
 
-export = function Api (plugins: any, defaultConfig: any) {
-  function create (inputOpts: any) {
+export = function Api (providedPlugins: unknown, defaultConfig: unknown) {
+  if (!Array.isArray(providedPlugins)) {
+    throw new Error('initial plugins must be provided in an array')
+  }
+  const initialPlugins = (providedPlugins as Array<unknown>).filter(Boolean)
+
+  const create: Create<{}> = function create (inputOpts: unknown) {
     const opts = merge(merge({}, defaultConfig), inputOpts)
     // change event emitter to something with more rigorous security?
-    let api = new EventEmitter()
-    create.plugins.forEach((plug) => {
-      let _api = plug.init.call(
+    let totalApi = new EventEmitter()
+    create.plugins.forEach((plugin) => {
+      let pluginApi = plugin.init.call(
         {},
-        api,
+        totalApi,
         opts,
         create.permissions,
         create.manifest
       )
-      if (plug.name) {
-        const camelCaseName = u.toCamelCase(plug.name)
-        const o: any = {}
-        o[camelCaseName] = _api
-        _api = o
+      if (plugin.name) {
+        const camelCaseName = u.toCamelCase(plugin.name)
+        const obj: Record<string, unknown> = {}
+        obj[camelCaseName] = pluginApi
+        pluginApi = obj
       }
-      api = merge(api, _api, (val: any, key: any) => {
+      totalApi = merge(totalApi, pluginApi, (val: unknown, key: string) => {
         if (typeof val === 'function') {
           val = Hookable(val)
-          if (plug.manifest && plug.manifest[key] === 'sync') {
+          if (plugin.manifest && plugin.manifest[key] === 'sync') {
             u.hookOptionalCB(val)
           }
         }
         return val
       })
     })
-    return api
+    return totalApi
   }
 
-  create.plugins = [] as Array<any>
+  create.plugins = []
   create.manifest = {}
   create.permissions = {}
 
-  create.use = function (plug: any) {
-    if (Array.isArray(plug)) {
-      plug.forEach(create.use)
+  create.use = function (plugin: unknown) {
+    if (Array.isArray(plugin)) {
+      plugin.forEach(create.use)
       return create
     }
 
-    if (!plug.init) {
-      if (typeof plug === 'function') {
-        create.plugins.push({ init: plug })
+    if (!(plugin as Partial<Plugin>).init) {
+      if (typeof plugin === 'function') {
+        const init = plugin as Plugin['init']
+        create.plugins.push({ init })
         return create
       } else {
         throw new Error('plugins *must* have "init" method')
       }
     }
 
-    if (plug.name && typeof plug.name === 'string') {
-      const found = create.plugins.some((p) => p.name === plug.name)
+    const maybePlugin = plugin as Plugin
+    if (maybePlugin.name && typeof maybePlugin.name === 'string') {
+      const found = create.plugins.some((p) => p?.name === maybePlugin.name)
       if (found) {
         console.error(
-          'plugin named:' + plug.name + ' is already loaded, skipping'
+          `plugin named "${maybePlugin.name}" is already loaded, skipping it`
         )
         return create
       }
     }
 
-    const name = plug.name
-    if (plug.manifest) {
+    const camelCaseName = u.toCamelCase(maybePlugin.name)
+    if (maybePlugin.manifest) {
       create.manifest = u.merge.manifest(
         create.manifest,
-        plug.manifest,
-        u.toCamelCase(name)
+        maybePlugin.manifest,
+        camelCaseName
       )
     }
-    if (plug.permissions) {
+    if (maybePlugin.permissions) {
       create.permissions = u.merge.permissions(
         create.permissions,
-        plug.permissions,
-        u.toCamelCase(name)
+        maybePlugin.permissions,
+        camelCaseName
       )
     }
-    create.plugins.push(plug)
+    create.plugins.push(maybePlugin)
 
     return create
-  };
-  [].concat(plugins).filter(Boolean).forEach(create.use)
+  }
+
+  initialPlugins.forEach(create.use)
 
   return create
 };

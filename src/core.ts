@@ -6,6 +6,7 @@ import {
   Transport,
   Transform,
   ScopeStr,
+  RPC
 } from './types'
 const Muxrpc = require('muxrpc')
 const pull = require('pull-stream')
@@ -134,7 +135,7 @@ export = {
         }
       }
     }
-    const peers: any = (api.peers = {})
+    const peers: Record<string, Array<RPC>> = (api.peers = {})
 
     const transports: Array<Transport> = []
 
@@ -225,7 +226,7 @@ export = {
       //       include ~mux1 at the end if they didn't specify a muxrpc version.
 
       const _id = '@' + u.toId(stream.remote)
-      const rpc = Muxrpc(
+      const rpc: RPC = Muxrpc(
         manifest,
         manf ?? manifest,
         api,
@@ -251,7 +252,7 @@ export = {
       if (!peers[rpc.id]) peers[rpc.id] = []
       peers[rpc.id].push(rpc)
       rpc.once('closed', () => {
-        peers[rpc.id].splice(peers[rpc.id].indexOf(rpc), 1)
+        peers[rpc.id!].splice(peers[rpc.id!].indexOf(rpc), 1)
       })
 
       api.emit('rpc:connect', rpc, !!isClient)
@@ -329,8 +330,8 @@ export = {
         }
 
         if (err) {
-          each(peers, (connections: any) => {
-            each(connections, (rpc: any) => {
+          each(peers, (connections) => {
+            each(connections, (rpc) => {
               rpc.close(err)
             })
           })
