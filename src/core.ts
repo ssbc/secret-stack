@@ -1,5 +1,6 @@
 import * as u from './util'
 import {
+  Config,
   Outgoing,
   Incoming,
   Transport,
@@ -105,13 +106,10 @@ export = {
       address: 'sync'
     }
   },
-  init (api: any, opts: any, permissions: any, manifest: any) {
-    // defaults
-    //      opts.appKey = opts.appKey || appKey
-
+  init (api: any, opts: Config, permissions: any, manifest: any) {
     let timeoutInactivity: number
-    if (opts.timers && !isNaN(opts.timers.inactivity)) {
-      timeoutInactivity = opts.timers.inactivity
+    if (!isNaN(opts.timers?.inactivity as any)) {
+      timeoutInactivity = opts.timers?.inactivity!
     }
     // if opts.timers are set, pick a longer default
     // but if not, set a short default (as needed in the tests)
@@ -156,49 +154,52 @@ export = {
       const serverSuites: Array<[unknown, unknown]> = []
       const clientSuites: Array<[unknown, unknown]> = []
 
-      for (const incTransportType in opts.connections.incoming) {
-        opts.connections.incoming[incTransportType].forEach((conf: any) => {
+      for (const incTransport in opts.connections!.incoming) {
+        opts.connections!.incoming[incTransport].forEach((inc) => {
           transforms.forEach((transform) => {
             transports.forEach((transport) => {
               if (
-                transport.name === incTransportType &&
-                transform.name === conf.transform
+                transport.name === incTransport &&
+                transform.name === inc.transform
               ) {
-                const trans = transport.create(conf)
-                if (trans.scope() !== conf.scope) {
+                const msPlugin = transport.create(inc)
+                const msTransformPlugin = transform.create()
+                if (msPlugin.scope() !== inc.scope) {
                   throw new Error(
                     'transport:' +
                       transport.name +
                       ' did not remember scope, expected:' +
-                      conf.scope +
+                      inc.scope +
                       ' got:' +
-                      trans.scope()
+                      msPlugin.scope()
                   )
                 }
                 debug(
                   'creating server %s %s host=%s port=%d scope=%s',
-                  incTransportType,
+                  incTransport,
                   transform.name,
-                  conf.host,
-                  conf.port,
-                  conf.scope || 'undefined'
+                  inc.host,
+                  inc.port,
+                  inc.scope || 'undefined'
                 )
-                serverSuites.push([transport.create(conf), transform.create()])
+                serverSuites.push([msPlugin, msTransformPlugin])
               }
             })
           })
         })
       }
 
-      for (const outTransportType in opts.connections.outgoing) {
-        opts.connections.outgoing[outTransportType].forEach((conf: any) => {
+      for (const outTransport in opts.connections!.outgoing) {
+        opts.connections!.outgoing[outTransport].forEach((out) => {
           transforms.forEach((transform) => {
             transports.forEach((transport) => {
               if (
-                transport.name === outTransportType &&
-                transform.name === conf.transform
+                transport.name === outTransport &&
+                transform.name === out.transform
               ) {
-                clientSuites.push([transport.create(conf), transform.create()])
+                const msPlugin = transport.create(out)
+                const msTransformPlugin = transform.create()
+                clientSuites.push([msPlugin, msTransformPlugin])
               }
             })
           })

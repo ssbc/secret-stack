@@ -23,3 +23,40 @@ export type Transform = {
   name: string;
   create: () => unknown;
 };
+
+export type Config = {
+  // Cryptographic capability key
+  caps?: {
+    shs?: Buffer | string;
+  };
+  appKey?: Buffer | string;
+
+  // Cryptographic keys
+  keys?: {
+    public?: string;
+    private?: string;
+    id?: string;
+  };
+  seed?: unknown;
+
+  // Multiserver
+  connections?: {
+    incoming?: {
+      [name: string]: Array<Incoming>;
+    };
+    outgoing?: {
+      [name: string]: Array<Outgoing>;
+    };
+  };
+
+  // Timers
+  timeout?: number;
+  timers?: {
+    handshake?: number;
+    inactivity?: number;
+  };
+
+  // Legacy but still supported
+  host?: string;
+  port?: number;
+};
