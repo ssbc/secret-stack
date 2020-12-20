@@ -32,10 +32,10 @@ export type Config = {
   appKey?: Buffer | string;
 
   // Cryptographic keys
-  keys?: {
-    public?: string;
-    private?: string;
-    id?: string;
+  keys: {
+    public: string;
+    private: string;
+    id: string;
   };
   seed?: unknown;
 
