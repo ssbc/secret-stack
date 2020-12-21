@@ -17,6 +17,7 @@
     "pull-inactivity": "~2.1.1",
     "pull-rate": "^1.0.2",
     "pull-stream": "^3.4.5",
+    "secret-handshake": "^1.1.20",
     "to-camel-case": "^1.0.0"
   },
   "engines": {
