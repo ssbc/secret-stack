@@ -22,9 +22,8 @@ export = {
   name: 'multiserver-shs',
   version: '1.0.0',
   init (api: any, config: Config) {
-    const keys = config.keys && toSodiumKeys(config.keys)    
-    if (!keys) {
-      console.error(new Error('Config object should contains SHS keys'))
+    if (!config.keys) {
+      throw new Error('Config object should contains SHS keys')
     }
 
     let timeoutHandshake: number | undefined
@@ -45,7 +44,7 @@ export = {
     }
 
     const shs = Shs({
-      keys,
+      keys: toSodiumKeys(config.keys),
       seed: config.seed,
       appKey: toBuffer(shsCap),
       timeout: timeoutHandshake,
