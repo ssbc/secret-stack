@@ -24,20 +24,12 @@ export type Transform = {
   create: () => unknown;
 };
 
-export type Config = {
+export interface BaseConfig {
   // Cryptographic capability key
   caps?: {
     shs?: Buffer | string;
   };
   appKey?: Buffer | string;
-
-  // Cryptographic keys
-  keys?: {
-    public?: string;
-    private?: string;
-    id?: string;
-  };
-  seed?: unknown;
 
   // Multiserver
   connections?: {
@@ -60,3 +52,20 @@ export type Config = {
   host?: string;
   port?: number;
 };
+
+export interface SeedConfig extends BaseConfig {
+  seed: unknown;
+  keys: never;
+};
+
+export interface KeysConfig extends BaseConfig {
+  seed: never;
+  // Cryptographic keys
+  keys: {
+    public: string;
+    private: string;
+    id: string;
+  };
+};
+
+export type Config = KeysConfig | SeedConfig;

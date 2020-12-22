@@ -22,6 +22,10 @@ export = {
   name: 'multiserver-shs',
   version: '1.0.0',
   init (api: any, config: Config) {
+    if (!config.keys && !config.seed) {
+      throw new Error('Config object should contains SHS keys or a seed')
+    }
+
     let timeoutHandshake: number | undefined
     if (!isNaN(config.timers?.handshake as any)) {
       timeoutHandshake = config.timers?.handshake!

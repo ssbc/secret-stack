@@ -31,6 +31,26 @@ var create = SecretStack({
 var alice = create({ seed: seeds.alice })
 var bob = create({ seed: seeds.bob })
 
+tape('throw error when no seed or keys are supplied', function (t) {
+  var noop = () => {}
+  var shsPlugin = require('../lib/plugins/shs')
+  var api = {
+    multiserver: {
+      transform: noop
+    }
+  }
+  var config = {
+    caps: {shs: appkey}
+  }
+
+  t.throws(
+    () => shsPlugin.init(api, config),
+    /Config object should contains SHS keys/,
+    'SHS plugin throws without seed or keys'
+  )
+  t.end()
+})
+
 tape('alice connects to bob', function (t) {
   alice.connect(bob.address(), function (err, rpc) {
     if (err) throw err
