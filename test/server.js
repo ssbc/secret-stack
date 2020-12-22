@@ -51,25 +51,6 @@ tape('throw error when no seed or keys are supplied', function (t) {
   t.end()
 })
 
-tape('populate config.keys from seed', function (t) {
-  var shsPlugin = require('../lib/plugins/shs')
-  var api = {
-    multiserver: {
-      transform: (ms) => {
-        var {publicKey} = ms.create()
-        t.ok(publicKey, 'public key has been populated from seed')
-        t.end()
-      }
-    }
-  }
-  var config = {
-    caps: {shs: appkey},
-    seed: seeds.bob
-  }
-
-  shsPlugin.init(api, config)
-})
-
 tape('alice connects to bob', function (t) {
   alice.connect(bob.address(), function (err, rpc) {
     if (err) throw err

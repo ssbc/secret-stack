@@ -1,7 +1,6 @@
 import * as u from '../util'
 import { Config } from '../types'
 const Shs = require('multiserver/plugins/shs')
-const {toKeys} = require('secret-handshake')
 
 function toBuffer (base64: string | Buffer): Buffer {
   if (Buffer.isBuffer(base64)) return base64
@@ -23,10 +22,7 @@ export = {
   name: 'multiserver-shs',
   version: '1.0.0',
   init (api: any, config: Config) {
-    if (config.seed) {
-      config.keys = toKeys(config.seed)
-    }
-    if (!config.keys) {
+    if (!config.keys && !config.seed) {
       throw new Error('Config object should contains SHS keys or a seed')
     }
 
@@ -48,7 +44,7 @@ export = {
     }
 
     const shs = Shs({
-      keys: toSodiumKeys(config.keys),
+      keys: config.keys && toSodiumKeys(config.keys),
       seed: config.seed,
       appKey: toBuffer(shsCap),
       timeout: timeoutHandshake,
