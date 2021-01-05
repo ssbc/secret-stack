@@ -5,7 +5,7 @@ import {
   Incoming,
   Transport,
   Transform,
-  ScopeStr,
+  ScopeStr
 } from './types'
 const Muxrpc = require('muxrpc')
 const pull = require('pull-stream')
@@ -119,8 +119,8 @@ export = {
       const netIn: Incoming = {
         scope: ['device', 'local', 'public'],
         transform: 'shs',
-        ...(opts.host ? {host: opts.host} : null),
-        ...(opts.port ? {port: opts.port} : null),
+        ...(opts.host ? { host: opts.host } : null),
+        ...(opts.port ? { port: opts.port } : null)
       }
       const netOut: Outgoing = {
         transform: 'shs'
