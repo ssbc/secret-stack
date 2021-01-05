@@ -13,7 +13,7 @@
     "hoox": "0.0.1",
     "map-merge": "^1.1.0",
     "multiserver": "^3.1.0",
-    "muxrpc": "^6.4.8",
+    "muxrpc": "^6.5.2",
     "pull-inactivity": "~2.1.1",
     "pull-rate": "^1.0.2",
     "pull-stream": "^3.4.5",
