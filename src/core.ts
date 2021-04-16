@@ -106,6 +106,11 @@ export = {
       address: 'sync'
     }
   },
+  permissions: {
+    anonymous: {
+      allow: ['manifest']
+    }
+  },
   init (api: any, opts: Config, permissions: any, manifest: any) {
     let timeoutInactivity: number
     if (!isNaN(opts.timers?.inactivity as any)) {
