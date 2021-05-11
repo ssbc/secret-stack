@@ -223,6 +223,48 @@ export = {
 
     setImmediate(setupMultiserver)
 
+    // FIXME: move this to somewhere better
+    function toBinary (byte: number) {
+      return [
+        '' + ((byte >> 7) & 1),
+        '' + ((byte >> 6) & 1),
+        '' + ((byte >> 5) & 1),
+        '' + ((byte >> 4) & 1),
+        '' + ((byte >> 3) & 1),
+        '' + ((byte >> 2) & 1),
+        '' + ((byte >> 1) & 1),
+        '' + (byte & 1)
+      ].join('')
+    }
+
+    // FIXME: move this to somewhere better
+    function muxd (buf: Buffer) {
+      if (buf.length < 9) return `STRANGE(${buf.toString('hex')})`
+      const flags = buf[0]
+      const stream = !!(flags & 8)
+      const end = !!(flags & 4)
+      let type: any = flags & 3
+      if (type === 0) type = 'bytes'
+      if (type === 1) type = 'string'
+      if (type === 2) type = 'json'
+      const len = buf.readUInt32BE(1)
+      const reqNum = buf.readInt32BE(5)
+      const flagsBinary = toBinary(flags)
+      const lengthHex = buf.slice(1, 5).toString('hex')
+      const reqNumHex = buf.slice(5, 9).toString('hex')
+      return [
+        flagsBinary,
+        lengthHex,
+        reqNumHex,
+        `req(${reqNum})`,
+        `end(${end})`,
+        stream ? 'stream' : 'req',
+        `len(${len})`,
+        `type(${type}):`,
+        buf.slice(0).toString('ascii')
+      ].join(' ')
+    }
+
     function setupRPC (stream: any, manf: unknown, isClient?: boolean) {
       // idea: make muxrpc part of the multiserver stream so that we can upgrade it.
       //       we'd need to fallback to using default muxrpc on ordinary connections.
@@ -250,7 +292,29 @@ export = {
       rpc.meta = stream.meta
       rpc.stream.address = stream.address
 
-      pull(stream, rpcStream, stream)
+      const shortId = rpc.id.slice(0, 8)
+      pull(
+        stream,
+
+        // FIXME: simplify or improve this, to not visually pollute here
+        rpc.id !== api.id
+          ? pull.through(
+            (data: Buffer) => console.log(`<== ${shortId} data`, muxd(data)),
+            (err: any) => console.log(`<== ${shortId} error`, err)
+          )
+          : null,
+
+        rpcStream,
+
+        rpc.id !== api.id
+          ? pull.through(
+            (data: Buffer) => console.log(`==> ${shortId} data`, muxd(data)),
+            (err: any) => console.log(`==> ${shortId} error`, err)
+          )
+          : null,
+
+        stream
+      )
 
       // keep track of current connections.
       if (!peers[rpc.id]) peers[rpc.id] = []
