@@ -7,6 +7,17 @@ and [muxrpc](https://github.com/ssbc/muxrpc). This provides a framework
 to make building secure, decentralized systems easier.
 (such as [ssb-server](https://github.com/ssbc/ssb-server) which this was refactored out of ;)
 
+This module:
+
+* uses [secret-handshake](https://github.com/auditdrivencrypto/secret-handshake) to set up a shared key for use between two peers with public / private keys (and verify the other peer)
+* uses [multiserver](https://github.com/ssb-js/multiserver) to handle different ways of connecting to other peers over different protocols (who you then handshake with)
+* uses muxrpc to provide a remote process call (rpc) interface to peers who have authenticated and connected allowing them to call methods on each other (like "please give me all mix's messages since yesterday"). This is all encrypted with the shared key set up by secret handshake.
+* provides a plugin stack which allows you to
+    - add new protocols to multiserver
+    - add muxrpc methods
+    - add plugins which persist state (like ssb-db, which when you add it essentially turns this into secure-scuttlebutt)
+    - add plugins which let you listen and automate some things (eg replicate my friends when I connect to nicoth)
+
 ## Example
 
 ``` js
