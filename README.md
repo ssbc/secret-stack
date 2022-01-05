@@ -2,9 +2,7 @@
 
 create secure peer to peer networks using secret-handshakes.
 
-SecretStack is built on [secret-handshake](https://github.com/dominictarr/secret-handshake)
-and [muxrpc](https://github.com/ssbc/muxrpc). This provides a framework
-to make building secure, decentralized systems easier.
+This provides a framework to make building secure, decentralized systems easier.
 (such as [ssb-server](https://github.com/ssbc/ssb-server) which this was refactored out of ;)
 
 This module:
