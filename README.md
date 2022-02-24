@@ -22,7 +22,11 @@ This module:
 var SecretStack = require('secret-stack')
 var databasePlugin = require('./some-database')
 var bluetoothPlugin = require('./bluetooth')
-var config = require('./some-config')
+const ssbKeys = require('ssb-keys')
+var keys = ssbKeys.loadOrCreateSync(path.join(__dirname, 'secret'))
+
+// keys are necessary for multiserver address
+var config = { keys }
 
 var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
   .use(databasePlugin)
