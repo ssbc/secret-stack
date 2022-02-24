@@ -33,6 +33,7 @@ var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' }
   .use(bluetoothPlugin)
 
 var app = App(config)
+console.log('address', app.getAddress())
 ```
 
 For documentation on plugins, see [PLUGINS.md](./PLUGINS.md).

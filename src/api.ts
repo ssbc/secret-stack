@@ -91,6 +91,8 @@ export = function Api (plugins: any, defaultConfig: any) {
         u.toCamelCase(name)
       )
     }
+
+    // merge top level permissions with plugin's permissions
     if (plug.permissions) {
       create.permissions = u.merge.permissions(
         create.permissions,
@@ -98,10 +100,12 @@ export = function Api (plugins: any, defaultConfig: any) {
         u.toCamelCase(name)
       )
     }
+
     create.plugins.push(plug)
 
     return create
   };
+
   [].concat(plugins).filter(Boolean).forEach(create.use)
 
   return create
