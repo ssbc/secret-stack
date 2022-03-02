@@ -2,10 +2,10 @@
   "name": "secret-stack",
   "description": "create secure peer to peer networks using secret-handshakes",
   "version": "6.4.0",
-  "homepage": "https://github.com/ssbc/secret-stack",
+  "homepage": "https://github.com/ssb-js/secret-stack",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ssbc/secret-stack.git"
+    "url": "git://github.com/ssb-js/secret-stack.git"
   },
   "main": "lib/index.js",
   "files": [
