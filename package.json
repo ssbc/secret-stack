@@ -8,6 +8,9 @@
     "url": "git://github.com/ssbc/secret-stack.git"
   },
   "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
   "dependencies": {
     "debug": "^4.1.0",
     "hoox": "0.0.1",
