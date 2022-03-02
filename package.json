@@ -39,9 +39,10 @@
   "scripts": {
     "prepublishOnly": "npm ls && npm test",
     "compile": "tsc",
-    "lint": "standardx --fix '**/*.ts'",
-    "pretest": "npm run compile",
-    "test": "standardx '**/*.ts' && set -e; for t in test/*.js; do node $t; done"
+    "lint-fix": "standardx --fix '**/*.ts'",
+    "lint": "standardx '**/*.ts'",
+    "tape": "tape test/*.js",
+    "test": "npm run lint && npm run compile && npm run tape"
   },
   "eslintConfig": {
     "rules": {
