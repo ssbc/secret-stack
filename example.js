@@ -8,7 +8,7 @@ var Perms = require('muxrpc/permissions')
 
 var App = SecretStack({
     appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=',
-    permissions: {}
+    // permissions: {}
 })
     .use(createMyPlugin('one'))
 
@@ -31,7 +31,7 @@ console.log('address', addr)
 // ... in a different process ...
 var SecondApp = SecretStack({
     appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=',
-    permissions: {}
+    // permissions: {}
 })
     .use(createMyPlugin('two'))
 
@@ -69,7 +69,7 @@ function createMyPlugin (str) {
 
         // permissions: perms,
         permissions: {
-            anonymous: { allow: ['foo', 'bar'], deny: [] }
+            // anonymous: { allow: ['foo', 'bar'], deny: [] }
         },
 
         init: (api, opts) => {
