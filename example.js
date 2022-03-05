@@ -12,7 +12,8 @@ var App = SecretStack({
 })
     .use(createMyPlugin('one'))
 
-var app = App({ keys })
+const config = { keys }
+var app = App(config)
 
 const addr = app.getAddress()
 console.log('address', addr)
@@ -69,7 +70,7 @@ function createMyPlugin (str) {
 
         // permissions: perms,
         permissions: {
-            // anonymous: { allow: ['foo', 'bar'], deny: [] }
+            anonymous: { allow: ['foo', 'bar'], deny: [] }
         },
 
         init: (api, opts) => {
@@ -81,12 +82,12 @@ function createMyPlugin (str) {
                     process.nextTick(() => {
                         cb(null, 'foo' + '-' + str)
                     })
-                }, 
+                },
 
-                // a function which returns a pull-stream source 
-                bar: function () {  
+                // a function which returns a pull-stream source
+                bar: function () {
                     return S.values([1,2,3])
-                } 
+                }
             }
         }
     }
