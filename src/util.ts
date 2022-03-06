@@ -2,7 +2,7 @@ const mapMerge = require('map-merge')
 const camelize = require('to-camel-case')
 
 function isObject (o: unknown): o is Record<string, unknown> {
-  return o && typeof o === 'object'
+  return !!o && typeof o === 'object'
 }
 
 export function clone (obj: unknown, mapper: any): any {
