@@ -22,14 +22,48 @@ This module:
 var SecretStack = require('secret-stack')
 var databasePlugin = require('./some-database')
 var bluetoothPlugin = require('./bluetooth')
-var config = require('./some-config')
+const ssbKeys = require('ssb-keys')
+var keys = ssbKeys.loadOrCreateSync(path.join(__dirname, 'secret'))
+var keysTwo = ssbKeys.loadOrCreateSync(path.join(__dirname, 'secret-two'))
+var myPlugin = require('./my-plugin)
+
+// keys are necessary for multiserver address
+var config = { keys }
 
 var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
-  .use(databasePlugin)
-  .use(bluetoothPlugin)
+  .use(myPlugin)
 
 var app = App(config)
+const addr = app.getAddress()
+
+
+// ... in a different process ...
+
+var SecondApp = SecretStack({
+    appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=',
+    // TODO -- what is permissions?
+    // permissions: {}
+})
+    .use(myPlugin)
+
+const secondApp = SecondApp({ keys: keysTwo })
+
+secondApp.connect(addr, (err, rpc) => {
+    console.log('*connected*', err)
+
+    rpc.myPlugin.foo((err, res) => {
+        console.log('*foo reponse*', err, res)
+
+        app.close(null, (err) => {
+            console.log('closed', err)
+            secondApp.close(null, err => {
+                console.log('closed 2', err)
+            })
+        })
+    })
+})
 ```
+
 
 For documentation on plugins, see [PLUGINS.md](./PLUGINS.md).
 
