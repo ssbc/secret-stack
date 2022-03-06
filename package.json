@@ -19,6 +19,7 @@
     "muxrpc": "^6.5.2",
     "pull-inactivity": "~2.1.1",
     "pull-rate": "^1.0.2",
+    "pull-stream": "^3.6.14",
     "to-camel-case": "^1.0.0"
   },
   "engines": {
@@ -28,9 +29,9 @@
     "@types/node": "^12.12.2",
     "@typescript-eslint/eslint-plugin": "^5.13.0",
     "@typescript-eslint/parser": "^5.13.0",
+    "mkdirp": "~1.0.4",
     "pull-pushable": "^2.0.1",
     "ssb-keys": "^8.2.0",
-    "mkdirp": "~1.0.4",
     "standardx": "^7.0.0",
     "tape": "^5.5.2",
     "typescript": "~4.5.0"
