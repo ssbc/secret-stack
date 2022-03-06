@@ -46,7 +46,7 @@ Initialize a new app factory.
 
 `opts` is an Object with properties:
 - `appKey` - _String, 32 bytes_ a high entropy (i.e. random) key which is fixed for your app. Actors who do not know this value will not be able to connect to instances of your app.
-- `permissions` - _Object_ (optional), you can set default permissions which will be the foundation for all permissions subsequently added
+- `permissions` - _Object_ (optional), you can set default permissions which will be the foundation for all permissions subsequently added. See [muxrpc permissions](https://github.com/ssb-js/muxrpc#permissions)
 
 NOTE - you can also add other properties to opts. These will be merged with `config` later to form the final config passed to each plugin. (i.e. `merge(opts, config)`)
 

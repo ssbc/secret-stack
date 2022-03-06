@@ -15,7 +15,7 @@ const Inactive = require('pull-inactivity')
 const debug = require('debug')('secret-stack')
 
 function isPlainObject (o: unknown): o is Record<string, unknown> {
-  return o && typeof o === 'object' && !Array.isArray(o)
+  return !!o && typeof o === 'object' && !Array.isArray(o)
 }
 
 function toBase64 (s: Buffer | string) {

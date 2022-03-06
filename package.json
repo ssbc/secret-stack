@@ -1,13 +1,16 @@
 {
   "name": "secret-stack",
   "description": "create secure peer to peer networks using secret-handshakes",
-  "version": "6.4.0",
-  "homepage": "https://github.com/ssbc/secret-stack",
+  "version": "6.4.1",
+  "homepage": "https://github.com/ssb-js/secret-stack",
   "repository": {
     "type": "git",
-    "url": "git://github.com/ssbc/secret-stack.git"
+    "url": "git://github.com/ssb-js/secret-stack.git"
   },
   "main": "lib/index.js",
+  "files": [
+    "lib/*"
+  ],
   "dependencies": {
     "debug": "^4.1.0",
     "hoox": "0.0.1",
@@ -23,6 +26,7 @@
   },
   "devDependencies": {
     "@types/node": "^12.12.2",
+<<<<<<< HEAD
     "@typescript-eslint/eslint-plugin": "^3.5.0",
     "@typescript-eslint/parser": "^3.5.0",
     "mkdirp": "~0.5.5",
@@ -33,13 +37,24 @@
     "standardx": "^5.0.0",
     "tape": "^4.0.0",
     "typescript": "~3.9.5"
+=======
+    "@typescript-eslint/eslint-plugin": "^5.13.0",
+    "@typescript-eslint/parser": "^5.13.0",
+    "pull-pushable": "^2.0.1",
+    "ssb-keys": "^8.2.0",
+    "mkdirp": "~1.0.4",
+    "standardx": "^7.0.0",
+    "tape": "^5.5.2",
+    "typescript": "~4.5.0"
+>>>>>>> 755a638fc8c17cb3c574be868456552c442cea8c
   },
   "scripts": {
     "prepublishOnly": "npm ls && npm test",
     "compile": "tsc",
-    "lint": "standardx --fix '**/*.ts'",
-    "pretest": "npm run compile",
-    "test": "standardx '**/*.ts' && set -e; for t in test/*.js; do node $t; done"
+    "lint-fix": "standardx --fix '**/*.ts'",
+    "lint": "standardx '**/*.ts'",
+    "tape": "tape test/*.js",
+    "test": "npm run lint && npm run compile && npm run tape"
   },
   "eslintConfig": {
     "rules": {
