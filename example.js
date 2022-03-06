@@ -68,9 +68,9 @@ function createMyPlugin (str) {
         },
 
         // permissions: perms,
-        permissions: {
-            anonymous: { allow: ['foo', 'bar'], deny: [] }
-        },
+        // permissions: {
+        //     anonymous: { allow: ['foo', 'bar'], deny: [] }
+        // },
 
         init: (api, opts) => {
             // .. do things
