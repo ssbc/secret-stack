@@ -4,7 +4,7 @@ const S = require('pull-stream')
 const path = require('path')
 var keys = ssbKeys.loadOrCreateSync(path.join(__dirname, 'secret'))
 var keysTwo = ssbKeys.loadOrCreateSync(path.join(__dirname, 'secret-two'))
-var Perms = require('muxrpc/permissions')
+// var Perms = require('muxrpc/permissions')
 
 var App = SecretStack({
     appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=',
@@ -16,7 +16,6 @@ const config = { keys }
 var app = App(config)
 
 const addr = app.getAddress()
-console.log('address', addr)
 
 // app.auth.hook(function (auth, args) {
 //     console.log('hook', auth, args)
