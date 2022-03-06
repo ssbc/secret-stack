@@ -11,18 +11,18 @@ The `connect` function calls `setupRPC`, which calls `Muxrpc` with `isClient` se
 you can see the permissions uses `anonymous`
 
 ```js
- const rpc = Muxrpc(
-        manifest,
-        manf ?? manifest,
-        api,
-        _id,
-        isClient
-          ? permissions.anonymous
-          : isPermissions(stream.auth)
-            ? stream.auth
-            : permissions.anonymous,
-        false
-      )
+const rpc = Muxrpc(
+  manifest,
+  manf ?? manifest,
+  api,
+  _id,
+  isClient
+    ? permissions.anonymous
+    : isPermissions(stream.auth)
+      ? stream.auth
+      : permissions.anonymous,
+  false
+)
 ```
 
 and the `permissions` object is passed into the function `init`.
@@ -30,3 +30,9 @@ and the `permissions` object is passed into the function `init`.
 
 where ssb-conn calls secret-stack's `.connect` :
 https://github.com/staltz/ssb-conn-hub/blob/master/src/index.ts#L243
+
+```js
+var [err, rpc] = connect
+
+this._rpcs.set(address, rpc);
+```
