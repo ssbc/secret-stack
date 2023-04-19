@@ -30,10 +30,7 @@ var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' }
 
 var app = App(config)
 ```
-Added talk.js and listen.js that can run on 2 different machines.
-Usage: node listen.js
-Then copy the key it prints and the host IP on which you ran listen.js and put it in talk.js
-Usage: node talk.js
+See also: [`talk.js`](./examples/talk.js) and [`listen.js`](./examples/listen.js)
 
 For documentation on plugins, see [PLUGINS.md](./PLUGINS.md).
 
