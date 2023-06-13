@@ -11,6 +11,7 @@ function merge (a: any, b: any, mapper?: any) {
       b[k] &&
       typeof b[k] === 'object' &&
       !Buffer.isBuffer(b[k]) &&
+      !(b[k] instanceof Uint8Array) &&
       !Array.isArray(b[k])
     ) {
       a[k] = {}
