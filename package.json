@@ -23,7 +23,7 @@
     "to-camel-case": "^1.0.0"
   },
   "engines": {
-    "node": ">=5.10.0"
+    "node": ">=16"
   },
   "devDependencies": {
     "@types/node": "^12.12.2",
