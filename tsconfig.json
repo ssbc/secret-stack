@@ -1,24 +1,16 @@
 {
+  "include": ["lib/**/*.js"],
+  "exclude": ["coverage/", "node_modules/", "test/"],
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
-    "lib": ["es5", "es2015", "es2016", "es2017"],
-    "skipLibCheck": true,
+    "checkJs": true,
     "declaration": true,
-    "outDir": "./lib",
-    "rootDir": "./src",
-    "strictNullChecks": true,
-    "removeComments": true,
+    "emitDeclarationOnly": true,
+    "exactOptionalPropertyTypes": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2022", "dom"],
+    "module": "node16",
+    "skipLibCheck": true,
     "strict": true,
-    "alwaysStrict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "downlevelIteration": true,
-    "moduleResolution": "node",
-    "experimentalDecorators": true,
-    "types": ["node"],
-    "esModuleInterop": false
-  },
-  "exclude": ["node_modules", "test", "lib"]
+    "target": "es2021"
+  }
 }
