@@ -9,7 +9,7 @@
   },
   "main": "lib/index.js",
   "files": [
-    "lib/*"
+    "lib/**/*"
   ],
   "dependencies": {
     "debug": "^4.3.0",
@@ -43,8 +43,8 @@
     "prepublishOnly": "npm run clean-check && tsc --build && npm test",
     "postpublish": "npm run clean-check",
     "test": "npm run clean-check && npm run lint && npm run tape",
-    "lint-fix": "standardx --fix 'lib/*.js'",
-    "lint": "standardx 'lib/*.js'",
+    "lint-fix": "standardx --fix 'lib/**/*.js'",
+    "lint": "standardx 'lib/**/*.js'",
     "tape": "tape test/*.js"
   },
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
