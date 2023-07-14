@@ -73,8 +73,13 @@ tape('bob has address', function (t) {
 })
 
 tape('client calls server: alice -> bob', function (t) {
+  t.ok(alice.id, 'has local legacy ID')
+  t.ok(alice.shs.pubkey, 'has local modern ID')
+
   alice.connect(bob.getAddress('device') || bob.getAddress(), function (err, bobRpc) {
     if (err) throw err
+    t.ok(bobRpc.id, 'has remote legacy ID')
+    t.ok(bobRpc.shs.pubkey, 'has remote modern ID')
     bobRpc.hello(function (err, data) {
       t.notOk(err)
       t.ok(data)
