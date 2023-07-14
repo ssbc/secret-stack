@@ -47,18 +47,6 @@
     "lint": "standardx 'lib/*.js'",
     "tape": "tape test/*.js"
   },
-  "eslintConfig": {
-    "rules": {
-      "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-vars": "error"
-    }
-  },
-  "standardx": {
-    "parser": "@typescript-eslint/parser",
-    "plugins": [
-      "@typescript-eslint/eslint-plugin"
-    ]
-  },
   "author": "Dominic Tarr <dominic.tarr@gmail.com> (http://dominictarr.com)",
   "license": "MIT"
 }
