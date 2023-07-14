@@ -7,10 +7,29 @@
     "type": "git",
     "url": "git://github.com/ssb-js/secret-stack.git"
   },
+  "type": "commonjs",
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "files": [
     "lib/**/*"
   ],
+  "exports": {
+    ".": {
+      "require": "./lib/index.js"
+    },
+    "./bare": {
+      "require": "./lib/bare.js"
+    },
+    "./plugins/net": {
+      "require": "./lib/plugins/net.js"
+    },
+    "./plugins/shs": {
+      "require": "./lib/plugins/shs.js"
+    }
+  },
+  "engines": {
+    "node": ">=16"
+  },
   "dependencies": {
     "debug": "^4.3.0",
     "hoox": "0.0.1",
@@ -21,9 +40,6 @@
     "pull-rate": "^1.0.2",
     "pull-stream": "^3.4.5",
     "to-camel-case": "^1.0.0"
-  },
-  "engines": {
-    "node": ">=16"
   },
   "devDependencies": {
     "@types/node": "^12.12.2",
