@@ -95,7 +95,7 @@ tape('server calls client: alice <- bob', function (t) {
   })
 
   bob.on('rpc:connect', function (aliceRpc) {
-    console.log(aliceRpc)
+    // console.log(aliceRpc)
     aliceRpc.hello(function (err, data) {
       t.notOk(err)
       t.ok(data)
@@ -111,8 +111,8 @@ tape('server calls client: alice <- bob', function (t) {
 })
 
 tape('cleanup', function (t) {
-  alice.close()
-  bob.close()
-  carol.close()
+  alice.close(() => {})
+  bob.close(() => {})
+  carol.close(() => {})
   t.end()
 })
