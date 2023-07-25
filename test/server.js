@@ -39,7 +39,7 @@ tape('alice connects to bob', function (t) {
       if (err) throw err
       t.equal(data, 'Hello, Alice.')
       // alice.close(true); bob.close(true)
-      console.log(data)
+      // console.log(data)
       t.end()
     })
   })
@@ -61,6 +61,7 @@ tape('alice is client, bob is server', function (t) {
 })
 
 tape('cleanup', function (t) {
-  alice.close(true); bob.close(true)
+  alice.close(true, () => {})
+  bob.close(true, () => {})
   t.end()
 })

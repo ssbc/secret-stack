@@ -47,7 +47,7 @@ tape('named plugin', function (t) {
     }
   }])
 
-  console.log(Create)
+  // console.log(Create)
 
   Create.use({
     name: 'foo',
@@ -78,7 +78,7 @@ tape('camel-case plugin', function (t) {
     }
   }])
 
-  console.log(Create)
+  // console.log(Create)
 
   Create.use({
     name: 'foo-bar',
@@ -114,7 +114,7 @@ tape('compound (array) plugins', function (t) {
     }
   }])
 
-  console.log(Create)
+  // console.log(Create)
 
   Create.use([
     {
@@ -164,7 +164,7 @@ tape('optional cb hook for sync api methods', function (t) {
     }
   }])
 
-  console.log(Create)
+  // console.log(Create)
 
   Create.use({
     name: 'foo',

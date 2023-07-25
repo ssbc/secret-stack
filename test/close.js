@@ -44,15 +44,15 @@ bob.connect(alice.address(), function (err, rpc) {
   alice.connect(carol.address(), function (err, rpc) {
     if (err) throw err
     rpc.once('closed', next)
-    alice.close(true)
+    alice.close(true, () => {})
     rpc.testSource()
   })
 
   function next () {
     if (--n) return
     console.log('closed')
-    alice.close()
-    bob.close()
-    carol.close()
+    alice.close(() => {})
+    bob.close(() => {})
+    carol.close(() => {})
   }
 })
