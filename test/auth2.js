@@ -73,8 +73,23 @@ tape('bob has address', function (t) {
 })
 
 tape('client calls server: alice -> bob', function (t) {
+  t.ok(alice.id, 'has local legacy ID')
+  t.ok(alice.shs.pubkey, 'has local modern ID')
+  const before = alice.shs.pubkey
+  alice.shs.pubkey = 'mutated'
+  const after = alice.shs.pubkey
+  t.equal(before, after, 'modern ID cannot be mutated')
+
   alice.connect(bob.getAddress('device') || bob.getAddress(), function (err, bobRpc) {
     if (err) throw err
+    t.ok(bobRpc.id, 'has remote legacy ID')
+    t.ok(bobRpc.shs.pubkey, 'has remote modern ID')
+
+    const before = bob.shs.pubkey
+    bob.shs.pubkey = 'mutated'
+    const after = bob.shs.pubkey
+    t.equal(before, after, 'modern ID cannot be mutated')
+
     bobRpc.hello(function (err, data) {
       t.notOk(err)
       t.ok(data)
