@@ -8,11 +8,9 @@ function hash (s) {
   return crypto.createHash('sha256').update(s).digest()
 }
 
-var appkey = hash('test_key')
+var appKey = hash('test_key')
 
-var create = SecretStack({
-  appKey: appkey
-}).use({
+var create = SecretStack({ global: { appKey } }).use({
   manifest: {
     hello: 'sync'
   },
@@ -28,9 +26,9 @@ var create = SecretStack({
   }
 })
 
-var alice = create({ seed: seeds.alice, timeout: 200, defaultTimeout: 5e3 })
-var carol = create({ seed: seeds.alice, timeout: 0, defaultTimeout: 10 })
-var bob = create({ seed: seeds.bob, timeout: 200, defaultTimeout: 2000 })
+var alice = create({ global: { seed: seeds.alice, timeout: 200, defaultTimeout: 5e3 } })
+var carol = create({ global: { seed: seeds.alice, timeout: 0, defaultTimeout: 10 } })
+var bob = create({ global: { seed: seeds.bob, timeout: 200, defaultTimeout: 2000 } })
 
 tape('delay startup', function (t) {
   setTimeout(t.end, 500)

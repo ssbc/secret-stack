@@ -4,7 +4,7 @@ var Api = require('../lib/api')
 tape('add a core api + a plugin', function (t) {
   var Create = Api([{
     init: function (api, opts) {
-      t.deepEqual(opts, { okay: true })
+      t.deepEqual(opts, { global: { okay: true } })
       return {
         hello: function (name) {
           return 'Hello, ' + name + '.'
@@ -13,13 +13,13 @@ tape('add a core api + a plugin', function (t) {
     }
   }])
 
-  var api = Create({ okay: true })
+  var api = Create({ global: { okay: true } })
 
   t.equal(api.hello('Foo'), 'Hello, Foo.')
 
   Create.use({
     init: function (api, opts) {
-      t.deepEqual(opts, { okay: true })
+      t.deepEqual(opts, { global: { okay: true } })
       api.hello.hook(function (greet, args) {
         var value = greet(args[0])
         return value.substring(0, value.length - 1) + '!!!'
@@ -27,7 +27,7 @@ tape('add a core api + a plugin', function (t) {
     }
   })
 
-  var api2 = Create({ okay: true })
+  var api2 = Create({ global: { okay: true } })
   t.equal(api2.hello('Foo'), 'Hello, Foo!!!')
   t.end()
 })
@@ -95,6 +95,53 @@ tape('camel-case plugin', function (t) {
       goodbye: 'async'
     }
   })
+
+  t.end()
+})
+
+tape('plugin cannot read other plugin config', function (t) {
+  t.plan(2)
+  // core, not a plugin.
+  var Create = Api([{
+    init: () => {}
+  }])
+
+  Create.use({
+    name: 'foo',
+    init(api, config) {
+      t.deepEqual(config.foo, { x: 10 })
+      t.notOk(config.bar)
+      return { }
+    }
+  })
+
+  Create({
+    foo: { x: 10 },
+    bar: { y: 20 }
+  })
+})
+
+tape('plugin cannot be named global', function (t) {
+  // core, not a plugin.
+  var Create = Api([{
+    manifest: {},
+    init: function (api) {
+      return {}
+    }
+  }])
+
+  const consoleError = console.error
+  let called = false
+  console.error = function (msg) {
+    t.equal(msg, 'plugin named "global" is reserved, skipping', 'global warn')
+    called = true
+  }
+  Create.use({
+    name: 'global',
+    init: function () { }
+  })
+  t.equal(called, true, 'console.error was called')
+  console.error = consoleError
 
   t.end()
 })

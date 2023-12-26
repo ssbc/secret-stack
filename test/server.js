@@ -10,7 +10,7 @@ function hash (s) {
 
 var appKey = hash('test_key')
 
-var create = SecretStack({ appKey })
+var create = SecretStack({ global: { appKey } })
   .use(require('../lib/plugins/net'))
   .use(require('../lib/plugins/shs'))
   .use({
@@ -29,8 +29,8 @@ var create = SecretStack({ appKey })
     }
   })
 
-var alice = create({ seed: seeds.alice })
-var bob = create({ seed: seeds.bob })
+var alice = create({ global: { seed: seeds.alice } })
+var bob = create({ global: { seed: seeds.bob } })
 
 tape('alice connects to bob', function (t) {
   alice.connect(bob.address(), function (err, rpc) {
@@ -47,8 +47,6 @@ tape('alice connects to bob', function (t) {
 })
 
 tape('alice is client, bob is server', function (t) {
-  t.plan(4)
-
   alice.on('rpc:connect', function (rpc, isClient) {
     t.true(rpc.stream.address.substr(0, 4) === 'net:' && rpc.stream.address.length > 40)
     t.ok(isClient)
@@ -58,11 +56,16 @@ tape('alice is client, bob is server', function (t) {
     t.notOk(isClient)
   })
 
-  alice.connect(bob.address(), function () {})
+  alice.connect(bob.address(), function (err, rpc) {
+    t.error(err)
+    setTimeout(() => {
+      rpc.close(true, t.end)
+    }, 50)
+  })
 })
 
 tape('cleanup', function (t) {
-  alice.close(true, () => {})
-  bob.close(true, () => {})
-  t.end()
+  alice.close(true, () => {
+    bob.close(true, t.end)
+  })
 })

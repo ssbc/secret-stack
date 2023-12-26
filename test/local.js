@@ -2,11 +2,9 @@ var tape = require('tape')
 var SecretStack = require('../lib')
 var seeds = require('./seeds')
 
-var appkey = Buffer.alloc(32)
+var appKey = Buffer.alloc(32)
 
-var create = SecretStack({
-  appKey: appkey
-})
+var create = SecretStack({ global: { appKey } })
 create.use({
   manifest: {
     ping: 'sync'
@@ -24,8 +22,10 @@ create.use({
 })
 
 var alice = create({
-  seed: seeds.alice,
-  timeout: 100
+  global: {
+    seed: seeds.alice,
+    timeout: 100
+  }
 })
 
 tape('do not timeout local client rpc', function (t) {
