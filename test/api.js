@@ -130,18 +130,12 @@ tape('plugin cannot be named global', function (t) {
     }
   }])
 
-  const consoleError = console.error
-  let called = false
-  console.error = function (msg) {
-    t.equal(msg, 'plugin named "global" is reserved, skipping', 'global warn')
-    called = true
-  }
-  Create.use({
-    name: 'global',
-    init: function () { }
-  })
-  t.equal(called, true, 'console.error was called')
-  console.error = consoleError
+  t.throws(() => {
+    Create.use({
+      name: 'global',
+      init: function () { }
+    })
+  }, 'throws on global plugin')
 
   t.end()
 })
