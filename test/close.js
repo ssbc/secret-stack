@@ -8,10 +8,9 @@ function hash (s) {
 }
 
 var create = SecretStack({
-  appKey: hash('test_flood'),
-  permissions: {
-    anonymous: { allow: null }
-  }
+  global: {
+    appKey: hash('test_flood'),
+  },
 })
   .use({
     manifest: {
@@ -26,7 +25,7 @@ var create = SecretStack({
     }
   })
 function createPeer (name) {
-  var alice = create({ seed: seeds[name] })
+  var alice = create({ multiserverShs: { seed: seeds[name] } })
   return alice.on('flood:message', function (msg) {
     console.log(name, 'received', msg)
   })

@@ -11,7 +11,9 @@ function hash (s) {
 var appkey = hash('test_key')
 
 var create = SecretStack({
-  appKey: appkey
+  global: {
+    appKey: appkey
+  }
 })
 
 create.use({
@@ -46,15 +48,21 @@ create.use({
   })
 
 var alice = create({
-  seed: seeds.alice
+  multiserverShs: {
+    seed: seeds.alice
+  }
 })
 
 var bob = create({
-  seed: seeds.bob
+  multiserverShs: {
+    seed: seeds.bob
+  }
 })
 
 var carol = create({
-  seed: seeds.carol
+  multiserverShs: {
+    seed: seeds.carol
+  }
 })
 
 tape('alice *can* use alice_only api', function (t) {

@@ -18,7 +18,9 @@ function hash (s) {
 var appkey = hash('test_key')
 
 var create = SecretStack({
-  appKey: appkey
+  global: {
+    appKey: appkey
+  }
 })
 
 create.use({
@@ -54,15 +56,21 @@ create.use({
   })
 
 var alice = create({
-  keys: keys.alice
+  global: {
+    keys: keys.alice
+  }
 })
 
 var bob = create({
-  keys: keys.bob
+  global: {
+    keys: keys.bob
+  }
 })
 
 var carol = create({
-  keys: keys.carol
+  global: {
+    keys: keys.carol
+  }
 })
 
 tape('bob has address', function (t) {

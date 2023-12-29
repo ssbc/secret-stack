@@ -48,15 +48,24 @@ create.use({
   })
 
 var alice = create({
-  seed: seeds.alice, caps: { shs: appkey1 }
+  multiserverShs: {
+    seed: seeds.alice,
+    cap: appkey1
+  }
 })
 
 var bob = create({
-  seed: seeds.bob, caps: { shs: appkey1 }
+  multiserverShs: {
+    seed: seeds.bob,
+    cap: appkey1
+  }
 })
 
 var carol = create({
-  seed: seeds.carol, caps: { shs: appkey1 }
+  multiserverShs: {
+    seed: seeds.carol,
+    cap: appkey1
+  }
 })
 
 tape('alice *can* use alice_only api', function (t) {
@@ -81,11 +90,15 @@ tape('carol *cannot* use alice_only api', function (t) {
 })
 
 var antialice = create({
-  seed: seeds.alice, appKey: appkey2
+  global: {
+    seed: seeds.alice, appKey: appkey2
+  }
 })
 
 var antibob = create({
-  seed: seeds.bob, appKey: appkey2
+  global: {
+    seed: seeds.bob, appKey: appkey2
+  }
 })
 
 tape('antialice cannot connect to alice because they use different appkeys', function (t) {

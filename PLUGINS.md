@@ -8,7 +8,7 @@ like Secure-Scuttlebutt. It is highly extensible via plugins.
 Plugins are simply NodeJS modules that export an `object` of form `{ name, version, manifest, init }`.
 
 ```js
-// bluetooth-plugin.js 
+// bluetooth-plugin.js
 
 module.exports = {
   name: 'bluetooth',
@@ -20,10 +20,12 @@ module.exports = {
   init: (api, opts) => {
     // .. do things
 
+    // In opts, only opts.bluetooth and opts.global are available
+
     // return things promised by the manifest:
     return {
       localPeers, // an async function (takes a callback)
-      updates // a function which returns a pull-stream source 
+      updates // a function which returns a pull-stream source
     }
   }
 }
@@ -37,7 +39,7 @@ method.
 
 var SecretStack = require('secret-stack')
 
-var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
+var App = SecretStack({ global: { appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' } })
   .use(require('./bluetooth-plugin'))
 
 var app = App()
@@ -45,12 +47,12 @@ var app = App()
 
 The plugin has now been mounted on the `secret-stack` instance and
 methods exposed by the plugin can be accessed at `app.pluginName.methodName`
-(e.g. `app.bluetooth.updates` 
+(e.g. `app.bluetooth.updates`)
 
 ---
 
 Plugins can be used to for a number of different use cases, like adding
-a persistent underlying database ([ssb-db](https://github.com/ssbc/ssb-db')) 
+a persistent underlying database ([ssb-db](https://github.com/ssbc/ssb-db'))
 or layering indexes on top of the underlying store ([ssb-links](https://github.com/ssbc/ssb-links)).
 
 It becomes very easy to lump a bunch of plugins together and create a
@@ -60,7 +62,7 @@ more sophisticated application.
 var SecretStack = require('secret-stack')
 var config = require('./some-config-file')
 
-var Server = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
+var Server = SecretStack({ global: { appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' } })
   .use(require('ssb-db')) // added persistent log storage
   .use(require('ssb-gossip')) // added peer gossip capabilities
   .use(require('ssb-replicate')) // can now replicate other logs with peers
@@ -69,7 +71,7 @@ var Server = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=
 var server = Server(config) // start application
 ```
 
-## Plugin Format 
+## Plugin Format
 
 A valid plugin is an `Object` of form `{ name, version, manifest, init }`
 
@@ -99,13 +101,13 @@ of plugins will be called in the order they were registered with `use`.
 
 The `init` function of a plugin will be passed:
 - `api` - _Object_ the secret-stack app so far
-- `opts` - the merge of the default-config secret-stack factory (App) was created with and the config the app was initialised with (app).
+- `opts` - configurations available to this plugin are `opts.global` and `opts[plugin.name]`
 - `permissions` - _Object_ the permissions so far
 - `manifest` - _Object_ the manifest so far
 
 If `plugin.name` is a string, then the return value of init is mounted like `api[plugin.name] = plugin.init(api, opts)`
 
-(If there's no `plugin.name` then the results of `init` are merged directly withe the `api` object!)
+(If there's no `plugin.name` then the results of `init` are merged directly with the `api` object!)
 
 Note, each method on the api gets wrapped with [hoox](https://github.com/dominictarr/hoox)
 so that plugins may intercept that function.
@@ -124,7 +126,7 @@ Any permissions provided will be merged into the main permissions,
 prefixed with the plugin name.
 
 e.g. In this case we're giving anyone access to `api.bluetooth.localPeers`,
-and the permission would be listed `'bluetooth.localPeers'` 
+and the permission would be listed `'bluetooth.localPeers'`
 
 ```js
 module.exports = {
@@ -143,7 +145,7 @@ module.exports = {
     // return things promised by the manifest:
     return {
       localPeers, // an async function (takes a callback)
-      updates // a function which returns a pull-stream source 
+      updates // a function which returns a pull-stream source
     }
   }
 }

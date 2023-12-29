@@ -24,7 +24,7 @@ var databasePlugin = require('./some-database')
 var bluetoothPlugin = require('./bluetooth')
 var config = require('./some-config')
 
-var App = SecretStack({ appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' })
+var App = SecretStack({ global: { appKey: '1KHLiKZvAvjbY1ziZEHMXawbCEIM6qwjCDm3VYRan/s=' } })
   .use(databasePlugin)
   .use(bluetoothPlugin)
 
@@ -57,11 +57,12 @@ Returns the App (with plugin now installed)
 
 Start the app and returns an EventEmitter with methods (core and plugin) attached.
 
-`config` is an (optional) Object with any properties:
-- `keys` - _String_ a sodium ed25519 key pair
-- ... - (optional)
+`config` is an (optional) Object with:
+- `config.global` - an object containing data available for all plugins
+  - `config.global.keys` - _String_ a sodium ed25519 key pair
+- `config[pluginName]` - an object containing data only available to the plugin with name `pluginName`. Note that `pluginName` is the camelCase of `plugin.name`.
 
-`config` will be passed to each plugin as they're initialised (as `merge(opts, config)` which opts were those options `SecretStack` factory was initialised with).
+`config` will be passed to each plugin as they're initialised (as `merge(opts, config)` which opts were those options `SecretStack` factory was initialised with), with only `config.global` and `config[pluginName]` available to each plugin.
 
 This `app` as an EventEmitter emits the following events:
 
