@@ -60,7 +60,7 @@ Start the app and returns an EventEmitter with methods (core and plugin) attache
 `config` is an (optional) Object with:
 - `config.global` - an object containing data available for all plugins
   - `config.global.keys` - _String_ a sodium ed25519 key pair
-- `config[pluginName]` - an object containing data only available to the plugin with name `pluginName`
+- `config[pluginName]` - an object containing data only available to the plugin with name `pluginName`. Note that `pluginName` is the camelCase of `plugin.name`.
 
 `config` will be passed to each plugin as they're initialised (as `merge(opts, config)` which opts were those options `SecretStack` factory was initialised with), with only `config.global` and `config[pluginName]` available to each plugin.
 
