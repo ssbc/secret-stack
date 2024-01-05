@@ -140,6 +140,39 @@ tape('plugin cannot be named global', function (t) {
   t.end()
 })
 
+tape('plugin needs another plugin', function (t) {
+  // core, not a plugin.
+  var Create = Api([{
+    manifest: {},
+    init: function (api) {
+      return {}
+    }
+  }])
+
+  t.throws(() => {
+    Create.use({
+      name: 'x',
+      needs: ['y'],
+      init: function () { }
+    })
+  }, 'throws on missing plugin')
+
+  Create.use({
+    name: 'foo',
+    init: function () { }
+  })
+
+  t.doesNotThrow(() => {
+    Create.use({
+      name: 'bar',
+      needs: ['foo'],
+      init: function () { }
+    })
+  }, 'does not throw on existing plugin')
+
+  t.end()
+})
+
 tape('compound (array) plugins', function (t) {
   // core, not a plugin.
   var Create = Api([{
