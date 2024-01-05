@@ -12,6 +12,7 @@ Plugins are simply NodeJS modules that export an `object` of form `{ name, versi
 
 module.exports = {
   name: 'bluetooth',
+  needs: ['conn'],
   version: '5.0.1',
   manifest: {
     localPeers: 'async',
@@ -86,6 +87,15 @@ will be available at `node.fooBar`.
 
 A `plugin.name` can also be an `'object`. This object will be merged
 directly with the
+
+### `plugin.needs` (Array) _optional_
+
+An array of strings which are the names of other plugins that this plugin
+depends on. If those plugins are not present, then secret-stack will throw
+an error indicating that the dependency is missing.
+
+Use this field to declare dependencies on other plugins, and this should
+facilitate the correct usage of your plugin.
 
 ### `plugin.version` (String) _optional_
 
