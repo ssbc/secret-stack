@@ -149,28 +149,36 @@ tape('plugin needs another plugin', function (t) {
     }
   }])
 
-  t.throws(() => {
-    Create.use({
-      name: 'x',
-      needs: ['y'],
-      init: function () { }
-    })
-  }, 'throws on missing plugin')
+  function uncaughtExceptionListener(err) {
+    t.equals(err.message, 'secret-stack plugin "x" needs plugin "y" but not found')
+
+    // Wait for potentially other errors
+    setTimeout(() => {
+      process.off('uncaughtException', uncaughtExceptionListener)
+      t.end()
+    }, 100)
+  }
+
+  process.on('uncaughtException', uncaughtExceptionListener)
+
+  // Should throw
+  Create.use({
+    name: 'x',
+    needs: ['y'],
+    init: function () { }
+  })
+
+  // Should NOT throw, even though 'foo' is loaded after 'bar'
+  Create.use({
+    name: 'bar',
+    needs: ['foo'],
+    init: function () { }
+  })
 
   Create.use({
     name: 'foo',
     init: function () { }
   })
-
-  t.doesNotThrow(() => {
-    Create.use({
-      name: 'bar',
-      needs: ['foo'],
-      init: function () { }
-    })
-  }, 'does not throw on existing plugin')
-
-  t.end()
 })
 
 tape('compound (array) plugins', function (t) {
