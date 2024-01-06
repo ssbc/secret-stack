@@ -140,6 +140,47 @@ tape('plugin cannot be named global', function (t) {
   t.end()
 })
 
+tape('plugin needs another plugin', function (t) {
+  // core, not a plugin.
+  var Create = Api([{
+    manifest: {},
+    init: function (api) {
+      return {}
+    }
+  }])
+
+  function uncaughtExceptionListener(err) {
+    t.equals(err.message, 'secret-stack plugin "x" needs plugin "y" but not found')
+
+    // Wait for potentially other errors
+    setTimeout(() => {
+      process.off('uncaughtException', uncaughtExceptionListener)
+      t.end()
+    }, 100)
+  }
+
+  process.on('uncaughtException', uncaughtExceptionListener)
+
+  // Should throw
+  Create.use({
+    name: 'x',
+    needs: ['y'],
+    init: function () { }
+  })
+
+  // Should NOT throw, even though 'foo' is loaded after 'bar'
+  Create.use({
+    name: 'bar',
+    needs: ['foo'],
+    init: function () { }
+  })
+
+  Create.use({
+    name: 'foo',
+    init: function () { }
+  })
+})
+
 tape('compound (array) plugins', function (t) {
   // core, not a plugin.
   var Create = Api([{
